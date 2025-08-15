@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Facture ' + ${invoice.reference}">Facture</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+        .logo {
+            max-width: 200px;
+            max-height: 80px;
+        }
+        .document-title {
+            font-size: 24pt;
+            color: #1976d2;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .document-subtitle {
+            font-size: 10pt;
+            color: #555;
+            margin-bottom: 40px;
+        }
+        .document-number {
+            font-size: 12pt;
+            margin-bottom: 5px;
+        }
+        .company-details {
+            width: 50%;
+        }
+        .company-name {
+            font-weight: bold;
+            font-size: 14pt;
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        .client-info {
+            width: 45%;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .date-info {
+            width: 45%;
+            padding: 15px;
+            background-color: #e8f0fe;
+            border-radius: 5px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        thead {
+            background-color: #1976d2;
+            color: white;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th:last-child, td:last-child {
+            text-align: right;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .totals {
+            width: 35%;
+            margin-left: auto;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .grand-total {
+            font-weight: bold;
+            font-size: 14pt;
+            color: #1976d2;
+            padding: 10px 0;
+            border-top: 2px solid #1976d2;
+            border-bottom: 2px solid #1976d2;
+        }
+        .notes {
+            margin-top: 40px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .payment-info {
+            margin-top: 40px;
+            padding: 15px;
+            background-color: #ffecb3;
+            border-radius: 5px;
+            border-left: 5px solid #ffc107;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 10pt;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .quote-reference {
+            font-style: italic;
+            color: #1976d2;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête du document -->
+    <div class="header">
+        <div>
+            <img th:if="${logoUrl}" th:src="${logoUrl}" class="logo" alt="Logo de l'entreprise"/>
+            <div class="company-name" th:text="${company.companyName}">Nom de l'entreprise</div>
+            <div th:text="${company.address}">Adresse</div>
+            <div th:text="${company.postalCode} + ' ' + ${company.city}">Code postal et ville</div>
+            <div th:text="${company.country}">Pays</div>
+            <div th:text="'Tél: ' + ${company.phoneNumber}">Téléphone</div>
+            <div th:text="'Email: ' + ${company.email}">Email</div>
+            <div th:if="${company.website}" th:text="'Site: ' + ${company.website}">Site web</div>
+        </div>
+        <div>
+            <div class="document-title">FACTURE</div>
+            <div class="document-subtitle">Merci pour votre confiance</div>
+            <div class="document-number" th:text="'Référence: ' + ${invoice.reference}">Référence: FACT-001</div>
+            <div th:text="'Date d\'émission: ' + ${formattedIssueDate}">Date d'émission: 01/01/2023</div>
+            <div th:text="'Date d\'échéance: ' + ${formattedDueDate}">Date d'échéance: 31/01/2023</div>
+            <div class="quote-reference" th:if="${quoteReference}">
+                Selon devis n° <span th:text="${quoteReference}">DEV-001</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations client et dates -->
+    <div class="info-section">
+        <div class="client-info">
+            <div class="section-title">DESTINATAIRE</div>
+            <div><strong th:text="${invoice.client.name}">Nom du client</strong></div>
+            <div th:text="${invoice.client.address}">Adresse du client</div>
+            <div th:if="${invoice.client.city}" th:text="${invoice.client.postalCode} + ' ' + ${invoice.client.city}">Code postal et ville</div>
+            <div th:if="${invoice.client.country}" th:text="${invoice.client.country}">Pays</div>
+            <div th:if="${invoice.client.email}" th:text="'Email: ' + ${invoice.client.email}">Email</div>
+            <div th:if="${invoice.client.phoneNumber}" th:text="'Tél: ' + ${invoice.client.phoneNumber}">Téléphone</div>
+        </div>
+        <div class="date-info">
+            <div class="section-title">INFORMATIONS</div>
+            <div><strong>Date d'émission:</strong> <span th:text="${formattedIssueDate}">01/01/2023</span></div>
+            <div><strong>Date d'échéance:</strong> <span th:text="${formattedDueDate}">31/01/2023</span></div>
+            <div th:if="${invoice.paymentTerms}"><strong>Conditions de paiement:</strong> <span th:text="${invoice.paymentTerms}">À réception de facture</span></div>
+        </div>
+    </div>
+
+    <!-- Tableau des prestations -->
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="width: 100px;">Quantité</th>
+                <th style="width: 100px;">Unité</th>
+                <th style="width: 120px;">Prix unitaire</th>
+                <th style="width: 120px;">Montant HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${invoice.items}">
+                <td th:text="${item.description}">Description de la prestation</td>
+                <td th:text="${item.quantity}">1</td>
+                <td th:text="${item.unit}">unité</td>
+                <td th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)} + ' Fcfa'">100,00 Fcfa</td>
+                <td th:text="${#numbers.formatDecimal(item.total, 1, 2)} + ' Fcfa'">100,00 Fcfa</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Totaux -->
+    <div class="totals">
+        <div class="total-row">
+            <div>Total HT</div>
+            <div th:text="${#numbers.formatDecimal(subtotal, 1, 2)} + ' Fcfa'">100,00 Fcfa</div>
+        </div>
+        <div class="total-row" th:if="${invoice.displayTax}">
+            <div th:text="'TVA (' + ${#numbers.formatDecimal(invoice.taxRate, 1, 1)} + '%)'">TVA (20,0%)</div>
+            <div th:text="${#numbers.formatDecimal(taxAmount, 1, 2)} + ' Fcfa'">20,00 Fcfa</div>
+        </div>
+        <div class="grand-total">
+            <div>TOTAL TTC</div>
+            <div th:text="${#numbers.formatDecimal(total, 1, 2)} + ' Fcfa'">120,00 Fcfa</div>
+        </div>
+    </div>
+
+    <!-- Instructions de paiement -->
+    <div class="payment-info" th:if="${invoice.paymentInstructions}">
+        <div class="section-title">INSTRUCTIONS DE PAIEMENT</div>
+        <div th:text="${invoice.paymentInstructions}">Instructions pour le paiement</div>
+    </div>
+
+    <!-- Notes -->
+    <div class="notes" th:if="${invoice.notes}">
+        <div class="section-title">NOTES</div>
+        <div th:text="${invoice.notes}">Notes et informations supplémentaires</div>
+    </div>
+
+    <!-- Mentions légales -->
+    <div class="footer">
+        <div th:if="${invoice.legalNotice}" th:text="${invoice.legalNotice}">Mentions légales</div>
+        <div th:unless="${invoice.legalNotice}">
+            <div th:text="${company.companyName} + ' - ' + ${company.address} + ', ' + ${company.postalCode} + ' ' + ${company.city} + ', ' + ${company.country}"></div>
+            <div th:if="${company.taxNumber}" th:text="'N° TVA: ' + ${company.taxNumber}">N° TVA: FR12345678901</div>
+            <div th:if="${company.registrationNumber}" th:text="'SIRET: ' + ${company.registrationNumber}">SIRET: 123 456 789 00012</div>
+        </div>
+    </div>
+</body>
+</html> 

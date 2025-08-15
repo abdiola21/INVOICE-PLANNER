@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="80px" viewBox="0 0 200 80" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond principal du document -->
+  <rect x="10" y="15" width="40" height="50" rx="3" fill="#4d7c8a" />
+  
+  <!-- Effet de page -->
+  <rect x="16" y="10" width="40" height="50" rx="3" fill="#75b1c0" />
+  
+  <!-- Document principal -->
+  <rect x="22" y="5" width="40" height="50" rx="3" fill="#ffffff" stroke="#202020" stroke-width="1" />
+  
+  <!-- Lignes du document -->
+  <line x1="28" y1="15" x2="56" y2="15" stroke="#cecece" stroke-width="1" />
+  <line x1="28" y1="22" x2="56" y2="22" stroke="#cecece" stroke-width="1" />
+  <line x1="28" y1="29" x2="56" y2="29" stroke="#cecece" stroke-width="1" />
+  <line x1="28" y1="36" x2="56" y2="36" stroke="#cecece" stroke-width="1" />
+  <line x1="28" y1="43" x2="56" y2="43" stroke="#cecece" stroke-width="1" />
+  
+  <!-- Bouton ou tampon rond -->
+  <circle cx="50" cy="25" r="10" fill="#4d7c8a" opacity="0.6" />
+  
+  <!-- Stylo / plume -->
+  <path d="M80,15 L68,35 L70,38 L83,17 Z" fill="#4d7c8a" />
+  <rect x="68" y="35" width="4" height="10" rx="1" fill="#4d7c8a" transform="rotate(-10, 70, 40)" />
+  
+  <!-- Texte "INVOICE PLANNER" -->
+  <text x="90" y="35" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#4d7c8a">INVOICE</text>
+  <text x="90" y="55" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#4d7c8a">PLANNER</text>
+</svg> 

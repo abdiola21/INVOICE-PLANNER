@@ -1,0 +1,167 @@
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header mb-4">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard']" class="text-decoration-none">
+                    <i class="ti ti-home me-1"></i>Tableau de Bord
+                  </a>
+                </li>
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard/clients']" class="text-decoration-none">Clients</a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">Ajouter</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="col-md-12 mt-3 d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 fw-bold">Ajouter un Client</h2>
+            <div>
+              <a [routerLink]="['/dashboard/clients']" class="btn btn-sm btn-outline-secondary">
+                <i class="ti ti-arrow-left me-1"></i>Retour
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+
+    <!-- Formulaire d'ajout -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+              <div class="row g-3 mb-4">
+                <!-- Informations personnelles -->
+                <div class="col-md-6">
+                  <div class="p-3 border rounded bg-light">
+                    <h6 class="mb-3 fw-semibold">Informations personnelles</h6>
+                    <div class="mb-3">
+                      <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                      <input id="nom" type="text" formControlName="nom" class="form-control"
+                        placeholder="Nom du client" />
+                      <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched"
+                        class="text-danger small mt-1">
+                        Le nom est requis
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                      <input id="email" type="email" formControlName="email" class="form-control"
+                        placeholder="Email du client" />
+                      <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched"
+                        class="text-danger small mt-1">
+                        <span *ngIf="clientForm.get('email')?.errors?.['required']">L'email est requis</span>
+                        <span *ngIf="clientForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="telephone" class="form-label">Téléphone <span class="text-danger">*</span></label>
+                      <input id="telephone" type="tel" formControlName="telephone" class="form-control"
+                        placeholder="Numéro de téléphone" />
+                      <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched"
+                        class="text-danger small mt-1">
+                        Le numéro de téléphone est requis
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Informations professionnelles -->
+                <div class="col-md-6">
+                  <div class="p-3 border rounded bg-light">
+                    <h6 class="mb-3 fw-semibold">Informations professionnelles</h6>
+                    <div class="mb-3">
+                      <label for="societe" class="form-label">Société <span class="text-danger">*</span></label>
+                      <input id="societe" type="text" formControlName="societe" class="form-control"
+                        placeholder="Société du client" />
+                      <div *ngIf="clientForm.get('societe')?.invalid && clientForm.get('societe')?.touched"
+                        class="text-danger small mt-1">
+                        La société est requise
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="numeroTVA" class="form-label">Numéro TVA <span class="text-danger">*</span></label>
+                      <input id="numeroTVA" type="text" formControlName="numeroTVA" class="form-control"
+                        placeholder="Numéro TVA" />
+                      <div *ngIf="clientForm.get('numeroTVA')?.invalid && clientForm.get('numeroTVA')?.touched"
+                        class="text-danger small mt-1">
+                        Le numéro TVA est requis
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="col-12">
+                  <div class="p-3 border rounded bg-light">
+                    <h6 class="mb-3 fw-semibold">Adresse</h6>
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label for="adresse" class="form-label">Adresse complète <span
+                            class="text-danger">*</span></label>
+                        <input id="adresse" type="text" formControlName="adresse" class="form-control"
+                          placeholder="Adresse du client" />
+                        <div *ngIf="clientForm.get('adresse')?.invalid && clientForm.get('adresse')?.touched"
+                          class="text-danger small mt-1">
+                          L'adresse est requise
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
+                        <input id="ville" type="text" formControlName="ville" class="form-control"
+                          placeholder="Ville du client" />
+                        <div *ngIf="clientForm.get('ville')?.invalid && clientForm.get('ville')?.touched"
+                          class="text-danger small mt-1">
+                          La ville est requise
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="pays" class="form-label">Pays <span class="text-danger">*</span></label>
+                        <input id="pays" type="text" formControlName="pays" class="form-control"
+                          placeholder="Pays du client" />
+                        <div *ngIf="clientForm.get('pays')?.invalid && clientForm.get('pays')?.touched"
+                          class="text-danger small mt-1">
+                          Le pays est requis
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="row">
+                <div class="col-12 d-flex gap-2">
+                  <button type="submit" class="btn btn-primary flex-grow-1"
+                    [disabled]="isLoading || clientForm.invalid">
+                    <span *ngIf="!isLoading">Ajouter</span>
+                    <span *ngIf="isLoading">Ajout...</span>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="onReset()" [disabled]="isLoading">
+                    Réinitialiser
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="onCancel()" [disabled]="isLoading">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+
+              <!-- Message d'erreur -->
+              <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mt-3">
+                <div>{{ errorMessage }}</div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

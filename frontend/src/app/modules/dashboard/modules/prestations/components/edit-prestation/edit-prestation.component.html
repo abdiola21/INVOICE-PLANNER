@@ -1,0 +1,164 @@
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header mb-4">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard']" class="text-decoration-none">
+                    <i class="ti ti-home me-1"></i>Tableau de Bord
+                  </a>
+                </li>
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard/services']" class="text-decoration-none">Services</a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">Modifier</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="col-md-12 mt-3 d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 fw-bold">Modifier le Service</h2>
+            <div>
+              <a [routerLink]="['/dashboard/services']" class="btn btn-sm btn-outline-secondary">
+                <i class="ti ti-arrow-left me-1"></i>Retour
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+
+    <!-- État de chargement -->
+    <div *ngIf="isLoading" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-5 text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-3 mb-0">Chargement des données de la prestation...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage && !isLoading" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm border-danger">
+          <div class="card-body p-4 text-center">
+            <div class="text-danger mb-3">
+              <i class="ti ti-alert-circle" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="text-danger">{{ errorMessage }}</h4>
+            <p class="mb-0">Veuillez réessayer ou contacter l'administrateur si le problème persiste.</p>
+            <div class="mt-3">
+              <a [routerLink]="['/dashboard/services']" class="btn btn-outline-secondary">
+                <i class="ti ti-list me-1"></i>Liste des services
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire d'édition -->
+    <div class="row" *ngIf="!isLoading && !errorMessage">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form [formGroup]="prestationForm" (ngSubmit)="onUpdate()">
+              <div class="row g-3 mb-4">
+                <!-- Informations de base -->
+                <div class="col-md-6">
+                  <div class="card border-0 bg-light-primary">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0"><i class="ti ti-info-circle me-2"></i>Informations de base</h5>
+                    </div>
+                    <div class="card-body p-3">
+                      <div class="mb-3">
+                        <label for="designation" class="form-label">Désignation <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ti ti-tag"></i></span>
+                          <input id="designation" type="text" formControlName="designation" class="form-control" placeholder="Nom de la prestation" />
+                        </div>
+                        <div *ngIf="prestationForm.get('designation')?.invalid && prestationForm.get('designation')?.touched" class="text-danger small mt-1">
+                          La désignation est requise
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ti ti-notes"></i></span>
+                          <textarea id="description" formControlName="description" class="form-control" placeholder="Description détaillée de la prestation" rows="3"></textarea>
+                        </div>
+                        <div *ngIf="prestationForm.get('description')?.invalid && prestationForm.get('description')?.touched" class="text-danger small mt-1">
+                          La description est requise
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Informations tarifaires -->
+                <div class="col-md-6">
+                  <div class="card border-0 bg-light-primary">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0"><i class="ti ti-calculator me-2"></i>Informations tarifaires</h5>
+                    </div>
+                    <div class="card-body p-3">
+                      <div class="mb-3">
+                        <label for="duree" class="form-label">Durée <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ti ti-clock"></i></span>
+                          <input id="duree" type="text" formControlName="duree" class="form-control" placeholder="Durée en heures" />
+                          <span class="input-group-text">heures</span>
+                        </div>
+                        <div *ngIf="prestationForm.get('duree')?.invalid && prestationForm.get('duree')?.touched" class="text-danger small mt-1">
+                          La durée est requise
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="prixUnitaire" class="form-label">Prix Unitaire <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ti ti-currency-franc"></i></span>
+                          <input id="prixUnitaire" type="number" formControlName="prixUnitaire" class="form-control" placeholder="Prix unitaire" />
+                          <span class="input-group-text">XOF</span>
+                        </div>
+                        <div *ngIf="prestationForm.get('prixUnitaire')?.invalid && prestationForm.get('prixUnitaire')?.touched" class="text-danger small mt-1">
+                          <span *ngIf="prestationForm.get('prixUnitaire')?.errors?.['required']">Le prix unitaire est requis</span>
+                          <span *ngIf="prestationForm.get('prixUnitaire')?.errors?.['min']">Le prix doit être supérieur à 0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="row">
+                <div class="col-12 d-flex gap-2">
+                  <button type="submit" class="btn btn-primary flex-grow-1" [disabled]="prestationForm.invalid || isSubmitting">
+                    <i class="ti ti-device-floppy me-2"></i>
+                    <span *ngIf="!isSubmitting">Enregistrer les modifications</span>
+                    <span *ngIf="isSubmitting">Mise à jour en cours...</span>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="onCancel()" [disabled]="isSubmitting">
+                    <i class="ti ti-x me-2"></i>Annuler
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

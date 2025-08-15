@@ -1,0 +1,25 @@
+/* Force la police Boxicons pour les classes .bx */
+.bx, i.bx, [class^="bx"], [class*=" bx"] {
+  font-family: boxicons !important;
+  font-style: normal;
+  font-weight: normal;
+}
+
+/* Patch affichage sidebar */
+.pc-sidebar .pc-micon i.bx {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+}
+.pc-sidebar .pc-micon i.bx::before {
+  display: inline-block;
+  line-height: 1;
+  speak: none;
+}
+
+
+/* Hide quick-apps grid icon and its dropdown coming from template header */
+.pc-header i.ph-duotone.ph-circles-four { display: none !important; }
+.pc-header .dropdown-qta { display: none !important; }
+.pc-header ul.list-unstyled > li:has(i.ph-duotone.ph-circles-four) { display: none !important; }
+

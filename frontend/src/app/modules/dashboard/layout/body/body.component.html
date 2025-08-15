@@ -1,0 +1,276 @@
+<!-- [ Main Content ] start -->
+<div class="pc-container">
+    <div class="pc-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+                            <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+                            <li aria-current="page" class="breadcrumb-item">Tableau de bord</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h2 class="mb-0">Tableau de bord</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+
+        <!-- État de chargement -->
+        <div class="row" *ngIf="isLoading">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <h5 class="mt-3">Chargement des données du tableau de bord...</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- État d'erreur -->
+        <div class="row" *ngIf="!isLoading && hasError">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center p-5">
+                        <i class="ti ti-alert-circle text-danger" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-danger">Erreur lors du chargement des données</h5>
+                        <p>Impossible de récupérer les données du tableau de bord. Veuillez réessayer plus tard.</p>
+                        <button class="btn btn-primary mt-2" (click)="loadDashboardData()">
+                            <i class="ti ti-refresh me-2"></i>Réessayer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="row" *ngIf="!isLoading && !hasError">
+            <app-dashboard-summary
+                [montantFacturesMois]="montantFacturesMois"
+                [facturesMois]="facturesMois"
+                [facturesPayees]="facturesPayees"
+                [totalFactures]="totalFactures"
+                [devisEnAttente]="devisEnAttente"
+                [totalDevis]="totalDevis"
+                [devisAcceptes]="devisAcceptes"
+                [montantFacturesAnnee]="montantFacturesAnnee"
+                [formatMontant]="formatMontant"
+                [calculateProgress]="calculateProgress"
+            ></app-dashboard-summary>
+
+            <div class="col-md-6 col-xl-4">
+                <div class="card statistics-card-1 overflow-hidden">
+                    <div class="card-body">
+                        <img alt="img" class="img-fluid img-bg" src="..\assets\images\widget\img-status-7.svg" />
+                        <div class="d-flex align-items-center">
+                            <div class="avtar avtar-s bg-light-primary flex-shrink-0">
+                                <i class="ti ti-users f-20"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <p class="mb-0 text-muted">Total Clients</p>
+                                <div class="d-inline-flex align-items-center">
+                                    <h5 class="f-w-300 d-flex align-items-center m-b-0">{{ totalClients }}</h5>
+                                    <span class="badge bg-success ms-2">Actifs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-5 text-center">
+                            <div class="col-6">
+                                <p class="mb-0 text-muted">Factures</p>
+                                <h5 class="mb-0">{{ totalFactures }}</h5>
+                            </div>
+                            <div class="col-6 border-start">
+                                <p class="mb-0 text-muted">Devis</p>
+                                <h5 class="mb-0">{{ totalDevis }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="card statistics-card-1 overflow-hidden">
+                    <div class="card-body">
+                        <img alt="img" class="img-fluid img-bg" src="..\assets\images\widget\img-status-8.svg" />
+                        <div class="d-flex align-items-center">
+                            <div class="avtar avtar-s bg-light-success flex-shrink-0">
+                                <i class="ti ti-receipt f-20"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <p class="mb-0 text-muted">Statut Factures</p>
+                                <div class="d-inline-flex align-items-center">
+                                    <h5 class="f-w-300 d-flex align-items-center m-b-0">{{ facturesPayees }}</h5>
+                                    <span class="badge bg-success ms-2">Payées</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-5 text-center">
+                            <div class="col-6">
+                                <p class="mb-0 text-muted">En attente</p>
+                                <h5 class="mb-0">{{ facturesEnAttente }}</h5>
+                            </div>
+                            <div class="col-6 border-start">
+                                <p class="mb-0 text-muted">En retard</p>
+                                <h5 class="mb-0">{{ facturesRetard }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-xl-4">
+                <div class="card statistics-card-1 overflow-hidden">
+                    <div class="card-body">
+                        <img alt="img" class="img-fluid img-bg" src="..\assets\images\widget\img-status-9.svg" />
+                        <div class="d-flex align-items-center">
+                            <div class="avtar avtar-s bg-light-warning flex-shrink-0">
+                                <i class="ti ti-file-invoice f-20"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <p class="mb-0 text-muted">Statut Devis</p>
+                                <div class="d-inline-flex align-items-center">
+                                    <h5 class="f-w-300 d-flex align-items-center m-b-0">{{ devisAcceptes }}</h5>
+                                    <span class="badge bg-success ms-2">Acceptés</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-5 text-center">
+                            <div class="col-6">
+                                <p class="mb-0 text-muted">En attente</p>
+                                <h5 class="mb-0">{{ devisEnAttente }}</h5>
+                            </div>
+                            <div class="col-6 border-start">
+                                <p class="mb-0 text-muted">Refusés</p>
+                                <h5 class="mb-0">{{ devisRefuses }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between py-3">
+                        <h5>Clients récents</h5>
+                        <a routerLink="/dashboard/clients" class="btn btn-sm btn-primary">
+                            <i class="ti ti-users me-1"></i> Tous les clients
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Affichage des clients récents -->
+                        <div class="list-group list-group-flush" *ngIf="clientsRecents && clientsRecents.length > 0">
+                            <a *ngFor="let client of clientsRecents | slice:0:5"
+                                [routerLink]="['/dashboard/clients/details', client.trackingId]"
+                                class="list-group-item list-group-item-action">
+                                <div class="d-flex align-items-center">
+                                    <div class="avtar avtar-s bg-light-primary flex-shrink-0">
+                                        <i class="ti ti-user f-20"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0">{{ client.nom }} {{ client.prenom }}</h6>
+                                        <p class="mb-0 text-muted small">{{ client.societe || 'Client particulier' }}</p>
+                                    </div>
+                                    <div>
+                                        <i class="ti ti-chevron-right text-muted"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Message si aucun client -->
+                        <div class="text-center p-4" *ngIf="!clientsRecents || clientsRecents.length === 0">
+                            <div class="avtar avtar-l bg-light-secondary mx-auto mb-3">
+                                <i class="ti ti-users-off f-30 text-secondary"></i>
+                            </div>
+                            <h6 class="mb-2">Aucun client</h6>
+                            <p class="text-muted mb-3">Vous n'avez pas encore ajouté de clients.</p>
+                            <a routerLink="/dashboard/clients/new" class="btn btn-primary">
+                                <i class="ti ti-plus me-1"></i> Ajouter un client
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-8">
+                <div class="card table-card">
+                    <div class="card-header d-flex align-items-center justify-content-between py-3">
+                        <h5>Factures récentes</h5>
+                        <a routerLink="/dashboard/factures" class="btn btn-sm btn-primary">
+                            <i class="ti ti-receipt me-1"></i> Toutes les factures
+                        </a>
+                    </div>
+                    <div class="card-body py-2 px-0">
+                        <!-- Affichage des factures récentes -->
+                        <div class="table-responsive" *ngIf="facturesRecentes && facturesRecentes.length > 0">
+                            <table class="table table-hover table-borderless mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Numéro</th>
+                                        <th>Client</th>
+                                        <th>Date</th>
+                                        <th>Montant</th>
+                                        <!-- <th>Statut</th> -->
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let facture of facturesRecentes | slice:0:5">
+                                        <td>
+                                            <span class="fw-medium">{{ facture.numero }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avtar avtar-xs bg-light-primary me-2">
+                                                    <i class="ti ti-user"></i>
+                                                </div>
+                                                <span>{{ facture.client?.nom }} {{ facture.client?.prenom }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ facture.createdAt | date:'dd/MM/yyyy' }}</td>
+                                        <td>{{ formatMontant(facture.montantTTC) }}</td>
+                                        <!-- <td>
+                                            <span class="badge" [ngClass]="{
+                                                        'bg-success': facture.etat === 'PAYEE',
+                                                        'bg-warning': facture.etat === 'ENVOYEE',
+                                                        'bg-danger': facture.etat === 'ANNULEE'
+                                                      }">
+                                                {{ facture.etat === 'PAYEE' ? 'Payée' :
+                                                facture.etat === 'ENVOYEE' ? 'Envoyée' : 'Annulée' }}
+                                            </span>
+                                        </td> -->
+                                        <td class="text-end">
+                                            <a [routerLink]="['/dashboard/factures/edit-facture', facture.trackingId]"
+                                                class="btn btn-sm btn-outline-primary">
+                                                <i class="ti ti-eye me-1"></i> Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Message si aucune facture -->
+                        <div class="text-center p-4" *ngIf="!facturesRecentes || facturesRecentes.length === 0">
+                            <div class="avtar avtar-l bg-light-secondary mx-auto mb-3">
+                                <i class="ti ti-receipt-off f-30 text-secondary"></i>
+                            </div>
+                            <h6 class="mb-2">Aucune facture</h6>
+                            <p class="text-muted mb-3">Vous n'avez pas encore créé de factures.</p>
+                            <a routerLink="/dashboard/factures/new" class="btn btn-primary">
+                                <i class="ti ti-plus me-1"></i> Créer une facture
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+</div>

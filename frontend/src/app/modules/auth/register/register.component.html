@@ -1,0 +1,118 @@
+<div class="min-vh-100 bg-gradient d-flex align-items-center justify-content-center p-4" style="background: linear-gradient(to right, #1976d2, #0d47a1);">
+    <div class="bg-white rounded-4 shadow p-5 w-100" style="max-width: 600px;">
+        <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold text-gradient">InvoicePlanner</h1>
+            <p class="text-muted">Simplifiez votre facturation</p>
+        </div>
+        
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <h2 class="h3 fw-semibold mb-4">Créer un compte</h2>
+            
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="prenom" class="form-label">Prénom</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-duotone ph-user"></i></span>
+                        <input id="prenom" type="text" formControlName="prenom" 
+                            class="form-control"
+                            placeholder="Votre prénom" />
+                    </div>
+                    <div *ngIf="registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched" 
+                        class="text-danger small mt-1">Prénom requis</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="nom" class="form-label">Nom</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-duotone ph-user"></i></span>
+                        <input id="nom" type="text" formControlName="nom" 
+                            class="form-control"
+                            placeholder="Votre nom" />
+                    </div>
+                    <div *ngIf="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched" 
+                        class="text-danger small mt-1">Nom requis</div>
+                </div>
+            </div>
+            
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-duotone ph-envelope-simple"></i></span>
+                        <input id="email" type="email" formControlName="email" 
+                            class="form-control"
+                            placeholder="Votre email" />
+                    </div>
+                    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" 
+                        class="text-danger small mt-1">Email invalide</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="numeroDeTelephone" class="form-label">Numéro de téléphone (optionnel)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-duotone ph-phone"></i></span>
+                        <input id="numeroDeTelephone" type="tel" formControlName="numeroDeTelephone" 
+                            class="form-control"
+                            placeholder="Votre numéro de téléphone" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-duotone ph-lock"></i></span>
+                        <input id="password" type="password" formControlName="password" 
+                            class="form-control"
+                            placeholder="Votre mot de passe" />
+                    </div>
+                    <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" 
+                        class="text-danger small mt-1">Mot de passe requis (6 caractères minimum)</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-duotone ph-lock"></i></span>
+                        <input id="confirmPassword" type="password" formControlName="confirmPassword" 
+                            class="form-control"
+                            placeholder="Confirmez votre mot de passe" />
+                    </div>
+                    <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" 
+                        class="text-danger small mt-1">Confirmation du mot de passe requise</div>
+                    <div *ngIf="passwordsNotMatching && registerForm.get('confirmPassword')?.touched" 
+                        class="text-danger small mt-1">Les mots de passe ne correspondent pas</div>
+                </div>
+            </div>
+            
+            <div class="mb-3 form-check">
+                <input type="checkbox" id="acceptTerms" formControlName="acceptTerms"
+                    class="form-check-input">
+                <label class="form-check-label" for="acceptTerms">
+                    J'accepte les <a href="#" class="text-primary">termes et conditions</a>
+                </label>
+                <div *ngIf="registerForm.get('acceptTerms')?.invalid && registerForm.get('acceptTerms')?.touched" 
+                    class="text-danger small mt-1">Vous devez accepter les termes et conditions</div>
+            </div>
+            
+            <button type="submit"
+                [disabled]="registerForm.invalid || isLoading"
+                class="btn btn-primary w-100 mb-3">
+                <i class="ph-duotone ph-user-plus me-2"></i>
+                <span>S'inscrire</span>
+            </button>
+            
+            <div class="text-center">
+                <span class="text-muted">Déjà un compte?</span>
+                <a routerLink="/auth" class="text-primary ms-1">Se connecter</a>
+            </div>
+            
+            <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mt-3">
+                <i class="bx bx-loader"></i>
+                <div>{{errorMessage}}</div>
+            </div>
+        </form>
+    </div>
+</div>
+

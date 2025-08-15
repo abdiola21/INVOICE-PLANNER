@@ -1,0 +1,230 @@
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header mb-4">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard']" class="text-decoration-none">
+                    <i class="ti ti-home me-1"></i>Tableau de Bord
+                  </a>
+                </li>
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard/clients']" class="text-decoration-none">Clients</a>
+                </li>
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard/clients/details', clientId]" class="text-decoration-none">Détails</a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">Modifier</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="col-md-12 mt-3 d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 fw-bold">Modifier le Client</h2>
+            <div>
+              <a [routerLink]="['/dashboard/clients/details', clientId]" class="btn btn-sm btn-outline-secondary">
+                <i class="ti ti-arrow-left me-1"></i>Retour
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+
+    <!-- État de chargement des données -->
+    <div *ngIf="loadingData" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-5 text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-3 mb-0">Chargement des données client...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage && !loadingData" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm border-danger">
+          <div class="card-body p-4 text-center">
+            <div class="mb-3">
+              <i class="ph-duotone ph-warning-circle text-danger f-36"></i>
+            </div>
+            <h5 class="text-danger">Erreur</h5>
+            <p class="mb-0">{{ errorMessage }}</p>
+            <div class="mt-3">
+              <button (click)="loadClientData()" class="btn btn-outline-primary me-2">
+                <i class="ph-duotone ph-arrows-clockwise me-2"></i>Réessayer
+              </button>
+              <button (click)="onCancel()" class="btn btn-outline-secondary">
+                <i class="ph-duotone ph-arrow-left me-2"></i>Retour
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire d'édition -->
+    <div *ngIf="!loadingData && !errorMessage" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form [formGroup]="clientForm" (ngSubmit)="onUpdate()">
+              <div class="row g-3 mb-4">
+                <!-- Informations personnelles -->
+                <div class="col-md-6">
+                  <div class="card border-0 bg-light-primary">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0"><i class="ph-duotone ph-user me-2"></i>Informations personnelles</h5>
+                    </div>
+                    <div class="card-body p-3">
+                      <div class="mb-3">
+                        <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ph-duotone ph-user"></i></span>
+                          <input id="nom" type="text" formControlName="nom" class="form-control" placeholder="Nom du client" />
+                        </div>
+                        <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched" class="text-danger small mt-1">
+                          Le nom est requis
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ph-duotone ph-envelope-simple"></i></span>
+                          <input id="email" type="email" formControlName="email" class="form-control" placeholder="Email du client" />
+                        </div>
+                        <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched" class="text-danger small mt-1">
+                          <span *ngIf="clientForm.get('email')?.errors?.['required']">L'email est requis</span>
+                          <span *ngIf="clientForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="telephone" class="form-label">Téléphone <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ph-duotone ph-phone"></i></span>
+                          <input id="telephone" type="tel" formControlName="telephone" class="form-control" placeholder="Numéro de téléphone" />
+                        </div>
+                        <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched" class="text-danger small mt-1">
+                          Le numéro de téléphone est requis
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Informations professionnelles -->
+                <div class="col-md-6">
+                  <div class="card border-0 bg-light-primary">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0"><i class="ph-duotone ph-buildings me-2"></i>Informations professionnelles</h5>
+                    </div>
+                    <div class="card-body p-3">
+                      <div class="mb-3">
+                        <label for="societe" class="form-label">Société <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ph-duotone ph-building"></i></span>
+                          <input id="societe" type="text" formControlName="societe" class="form-control" placeholder="Société du client" />
+                        </div>
+                        <div *ngIf="clientForm.get('societe')?.invalid && clientForm.get('societe')?.touched" class="text-danger small mt-1">
+                          La société est requise
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="numeroTVA" class="form-label">Numéro TVA <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ph-duotone ph-barcode"></i></span>
+                          <input id="numeroTVA" type="text" formControlName="numeroTVA" class="form-control" placeholder="Numéro TVA" />
+                        </div>
+                        <div *ngIf="clientForm.get('numeroTVA')?.invalid && clientForm.get('numeroTVA')?.touched" class="text-danger small mt-1">
+                          Le numéro TVA est requis
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Adresse -->
+                <div class="col-12">
+                  <div class="card border-0 bg-light-primary">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0"><i class="ph-duotone ph-map-pin me-2"></i>Adresse</h5>
+                    </div>
+                    <div class="card-body p-3">
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label for="adresse" class="form-label">Adresse complète <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-duotone ph-location"></i></span>
+                            <input id="adresse" type="text" formControlName="adresse" class="form-control" placeholder="Adresse du client" />
+                          </div>
+                          <div *ngIf="clientForm.get('adresse')?.invalid && clientForm.get('adresse')?.touched" class="text-danger small mt-1">
+                            L'adresse est requise
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                          <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-duotone ph-city"></i></span>
+                            <input id="ville" type="text" formControlName="ville" class="form-control" placeholder="Ville du client" />
+                          </div>
+                          <div *ngIf="clientForm.get('ville')?.invalid && clientForm.get('ville')?.touched" class="text-danger small mt-1">
+                            La ville est requise
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                          <label for="pays" class="form-label">Pays <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ph-duotone ph-globe"></i></span>
+                            <input id="pays" type="text" formControlName="pays" class="form-control" placeholder="Pays du client" />
+                          </div>
+                          <div *ngIf="clientForm.get('pays')?.invalid && clientForm.get('pays')?.touched" class="text-danger small mt-1">
+                            Le pays est requis
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Boutons d'action -->
+              <div class="row">
+                <div class="col-12 d-flex gap-2">
+                  <button type="submit" class="btn btn-primary flex-grow-1" [disabled]="isLoading || clientForm.invalid">
+                    <i class="ph-duotone ph-user-check me-2"></i>
+                    <span *ngIf="!isLoading">Mettre à jour</span>
+                    <span *ngIf="isLoading">Mise à jour en cours...</span>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="onCancel()" [disabled]="isLoading">
+                    <i class="ph-duotone ph-x me-2"></i>Annuler
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Message d'erreur -->
+              <div *ngIf="errorMessage && !loadingData" class="alert alert-danger d-flex align-items-center mt-3">
+                <i class="ph-duotone ph-warning-circle me-2"></i>
+                <div>{{ errorMessage }}</div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

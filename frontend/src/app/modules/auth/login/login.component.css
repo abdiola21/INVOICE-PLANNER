@@ -1,0 +1,154 @@
+/* Variables de couleurs */
+:root {
+    --primary-color: #1976d2;
+    --primary-dark: #0d47a1;
+    --primary-light: #64b5f6;
+    --text-color: #333;
+    --text-light: #666;
+    --background-light: #f8f9fa;
+    --white: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --error-color: #f44336;
+}
+
+/* Styles de la page de connexion */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    padding: 20px;
+}
+
+.login-card {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-container h1 {
+    color: var(--primary-dark);
+    margin-bottom: 5px;
+    font-size: 2rem;
+}
+
+.logo-container p {
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+form h2 {
+    color: var(--primary-dark);
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.field {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.p-input-icon-left {
+    width: 100%;
+}
+
+.p-input-icon-left i {
+    color: var(--text-light);
+}
+
+input.ng-invalid.ng-touched {
+    border-color: var(--error-color);
+}
+
+.p-error {
+    color: var(--error-color);
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.field-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.forgot-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.button-container {
+    margin-bottom: 20px;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.register-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 5px;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .login-card {
+        padding: 30px 20px;
+    }
+    
+    .remember-forgot {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .forgot-link {
+        margin-top: 10px;
+    }
+}

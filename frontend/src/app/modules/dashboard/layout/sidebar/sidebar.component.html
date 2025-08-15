@@ -1,0 +1,109 @@
+<!-- [ Sidebar Menu ] start -->
+<nav class="pc-sidebar" [class.collapsed]="isCollapsed">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-overlay d-flex justify-content-center align-items-center p-3">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger m-3" role="alert">
+    {{ error }}
+    <button class="btn btn-outline-danger btn-sm ms-2" (click)="refreshSidebarData()">Réessayer</button>
+  </div>
+
+  <div class="navbar-wrapper" *ngIf="!isLoading && !error">
+    <div class="m-header">
+      <a class="b-brand text-primary logo-container" routerLink="/dashboard">
+        <img
+          [alt]="logo?.alt || 'InvoicePlanner Logo'"
+          class="logo-lg"
+          [src]="logo?.primary || 'assets/images/logo/invoiceslogan.png'"
+          height="50"
+        />
+        <!-- <div class="app-title">
+          <span>{{ logo?.title || 'Invoice Planner' }}</span>
+          <small>{{ logo?.subtitle || 'Gestion de factures' }}</small>
+        </div> -->
+      </a>
+    </div>
+    <div class="navbar-content">
+      <ul class="pc-navbar">
+        <li class="pc-item" *ngFor="let menuItem of menuItems">
+          <a class="pc-link" 
+             [routerLink]="menuItem.route" 
+             routerLinkActive="active" 
+             [routerLinkActiveOptions]="{exact: menuItem.route === '/dashboard'}"
+             (click)="onMenuItemClick(menuItem)"
+             [class.disabled]="!isFeatureEnabled(menuItem.id)">
+            <span class="pc-micon">
+              <i [class]="menuItem.icon" [style.color]="menuItem.icon.includes('bxs-dashboard') ? '#ffffff' : ''"></i>
+            </span>
+            <span class="pc-mtext">{{ menuItem.text }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="card pc-user-card" *ngIf="userCard">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <img
+              [src]="userCard.avatarUrl || 'assets/images/user/avatar-1.jpg'"
+              alt="user-image"
+              class="user-avtar wid-45 rounded-circle"
+            />
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="dropdown">
+              <a
+                class="arrow-none dropdown-toggle"
+                data-bs-toggle="dropdown"
+                href="#"
+                aria-expanded="false"
+              >
+                <div class="d-flex align-items-center">
+                  <div class="flex-grow-1 me-2">
+                    <h6 class="mb-0">{{ userCard.userName }}</h6>
+                    <small>{{ userCard.userRole }}</small>
+                  </div>
+                  <i
+                    class="ph-duotone ph-windows-logo"
+                    style="font-size: 1.5rem"
+                  ></i>
+                </div>
+              </a>
+              <div class="dropdown-menu">
+                <ul>
+                  <li>
+                    <a class="pc-user-links" [routerLink]="userCard.profileLink">
+                      <i class="ph-duotone ph-user"></i>
+                      <span>Mon Profil</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="pc-user-links" [routerLink]="userCard.settingsLink">
+                      <i class="ph-duotone ph-gear"></i>
+                      <span>Paramètres</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="pc-user-links" (click)="logout()">
+                      <i class="ph-duotone ph-power"></i>
+                      <span>Déconnexion</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<!-- [ Sidebar Menu ] end -->
+
+
+

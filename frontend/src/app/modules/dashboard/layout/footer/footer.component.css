@@ -1,0 +1,66 @@
+/* Variables de couleurs */
+:root {
+    --primary-color: #1976d2;
+    --primary-dark: #0d47a1;
+    --primary-light: #64b5f6;
+    --text-color: #333;
+    --text-light: #666;
+    --background-light: #f8f9fa;
+    --white: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles du pied de page */
+.dashboard-footer {
+    background-color: var(--white);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 15px 20px;
+    position: relative;
+    z-index: 900;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.copyright {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.footer-right {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-link {
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-left {
+        margin-bottom: 10px;
+    }
+    
+    .footer-right {
+        justify-content: center;
+    }
+}

@@ -1,0 +1,163 @@
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header mb-4">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard']" class="text-decoration-none">
+                    <i class="ti ti-home me-1"></i>Tableau de Bord
+                  </a>
+                </li>
+                <li class="breadcrumb-item">
+                  <a [routerLink]="['/dashboard/services']" class="text-decoration-none">Services</a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">Détails</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="col-md-12 mt-3 d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 fw-bold">Détails du Service</h2>
+            <div>
+              <a *ngIf="prestation?.trackingId" [routerLink]="['/dashboard/services/edit', prestation.trackingId]"
+                class="btn btn-sm btn-outline-primary me-2">
+                <i class="ti ti-edit me-1"></i>Modifier
+              </a>
+              <a [routerLink]="['/dashboard/services']" class="btn btn-sm btn-outline-secondary">
+                <i class="ti ti-arrow-left me-1"></i>Retour
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+
+    <!-- État de chargement -->
+    <div *ngIf="loading" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-5 text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-3 mb-0">Chargement des données de la prestation...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="error && !loading" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm border-danger">
+          <div class="card-body p-4 text-center">
+            <div class="text-danger mb-3">
+              <i class="ti ti-alert-circle" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="text-danger">{{ error }}</h4>
+            <p class="mb-0">Veuillez réessayer ou contacter l'administrateur si le problème persiste.</p>
+            <div class="mt-3">
+              <button class="btn btn-outline-primary me-2" (click)="refreshData()">
+                <i class="ti ti-refresh me-1"></i>Réessayer
+              </button>
+              <a [routerLink]="['/dashboard/services']" class="btn btn-outline-secondary">
+                <i class="ti ti-list me-1"></i>Liste des services
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="row" *ngIf="prestation && !loading && !error">
+      <div class="col-12 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-white py-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="fw-bold mb-0">
+                <i class="ti ti-file-invoice me-2"></i>{{ prestation.designation }}
+              </h3>
+              <span class="badge bg-light text-dark fs-6">{{ prestation.prixUnitaire | currency:'XOF':'symbol':'1.0-0'
+                }}</span>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <!-- Informations principales -->
+            <div class="row mb-4">
+              <div class="col-sm-6 mb-3">
+                <div class="p-3 border rounded h-100">
+                  <h4 class="text-dark mb-2"><i class="ti ti-currency-franc me-2"></i>Prix Unitaire</h4>
+                  <p class="fs-4 fw-bold mb-0">{{ prestation.prixUnitaire | currency:'XOF':'symbol':'1.0-0' }}</p>
+                </div>
+              </div>
+              <div class="col-sm-6 mb-3">
+                <div class="p-3 border rounded h-100">
+                  <h4 class="text-dark mb-2"><i class="ti ti-clock me-2"></i>Durée</h4>
+                  <p class="fs-4 fw-bold mb-0">{{ prestation.duree }} <small>heures</small></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="card mb-4 border">
+              <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="ti ti-notes me-2"></i>Description</h5>
+              </div>
+              <div class="card-body p-3">
+                <p class="mb-0 fs-5">{{ prestation.description }}</p>
+              </div>
+            </div>
+
+            <!-- Statistiques d'utilisation -->
+            <div class="card border">
+              <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="ti ti-chart-bar me-2"></i>Statistiques d'utilisation</h5>
+              </div>
+              <div class="card-body p-3">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <div class="card border mb-0 h-100">
+                      <div class="card-body p-3 text-center">
+                        <h3 class="text-dark mb-1">0</h3>
+                        <p class="mb-0">Factures</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card border mb-0 h-100">
+                      <div class="card-body p-3 text-center">
+                        <h3 class="text-dark mb-1">0</h3>
+                        <p class="mb-0">Devis</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card border mb-0 h-100">
+                      <div class="card-body p-3 text-center">
+                        <h3 class="text-dark mb-1">0</h3>
+                        <p class="mb-0">Contrats</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer bg-white p-4 border-top">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="text-dark mb-0">Prix Total</h4>
+              <p class="fs-3 fw-bold text-dark mb-0">{{ prestation.prixTotal }} XOF</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ Main Content ] end -->
+  </div>
+</div>

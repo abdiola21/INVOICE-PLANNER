@@ -1,0 +1,467 @@
+<!-- Toast pour les messages -->
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="pc-container">
+  <div class="row ">
+    <div class="row pc-content">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Modifier le devis</h4>
+            <!--bouton retour-->
+            <button class="btn btn-secondary ms-auto float-end" [routerLink]="['/dashboard/devis']">
+              <i class='bx bx-arrow-back'></i> Retour
+            </button>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="devisForm" (ngSubmit)="onSubmit()">
+              <!-- Informations générales -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Référence</label>
+                  <input type="text" class="form-control" formControlName="reference" readonly>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Nom du projet</label>
+                  <input type="text" class="form-control" formControlName="nomProjet">
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" formControlName="description" rows="2"></textarea>
+                </div>
+              </div>
+
+              <!-- Client -->
+              <div class="row mb-3">
+                <div class="col-md-9">
+                  <label class="form-label">Client <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="form-control position-relative flex-grow-1">
+                      <div class="dropdown w-100">
+                        <input type="text" class="form-control border-0" 
+                              placeholder="Rechercher un client..." 
+                              [(ngModel)]="clientFilterText" 
+                              [ngModelOptions]="{standalone: true}"
+                              (focus)="clientDropdown.classList.add('show')"
+                              (input)="clientDropdown.classList.add('show')">
+                                
+                        <div #clientDropdown class="dropdown-menu w-100" style="max-height: 250px; overflow-y: auto;">
+                          <div *ngIf="filterClients().length === 0" class="dropdown-item text-muted">Aucun client trouvé</div>
+                          <button *ngFor="let client of filterClients()" 
+                                  type="button" 
+                                  class="dropdown-item" 
+                                  (click)="onClientSelected(client); clientDropdown.classList.remove('show')">
+                            <strong>{{ client.nom }}</strong>
+                            <div *ngIf="client.societe" class="small text-muted">{{ client.societe }}</div>
+                            <div *ngIf="client.email" class="small text-muted">{{ client.email }}</div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" (click)="openAddClientModal()">
+                      <i class='bx bx-plus'></i> Nouveau
+                    </button>
+                  </div>
+                  <div *ngIf="selectedClient" class="mt-2 p-2 border rounded">
+                    <div class="d-flex justify-content-between">
+                      <strong>{{ selectedClient.nom }}</strong>
+                      <button type="button" class="btn-close" (click)="selectedClient = null; devisForm.get('client')?.setValue(null)"></button>
+                    </div>
+                    <div *ngIf="selectedClient.societe" class="small">{{ selectedClient.societe }}</div>
+                    <div *ngIf="selectedClient.email" class="small">{{ selectedClient.email }}</div>
+                  </div>
+                  <div *ngIf="devisForm.get('client')?.invalid && devisForm.get('client')?.touched" class="text-danger mt-1">
+                    Veuillez sélectionner un client
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Statut</label>
+                  <select class="form-select" formControlName="statut">
+                    <option value="BROUILLON">Brouillon</option>
+                    <option value="ENVOYÉ">Envoyé</option>
+                    <option value="ACCEPTÉ">Accepté</option>
+                    <option value="REFUSÉ">Refusé</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Dates -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="dateEmission" class="form-label">Date d'émission</label>
+                  <input id="dateEmission" type="date" class="form-control" formControlName="dateEmission">
+                </div>
+                <div class="col-md-6">
+                  <label for="dateEcheance" class="form-label">Date d'échéance</label>
+                  <input id="dateEcheance" type="date" class="form-control" formControlName="dateEcheance">
+                </div>
+              </div>
+
+              <!-- Prestations -->
+              <h5 class="mt-4">Prestations</h5>
+              <div class="mb-3">
+                <div class="input-group">
+                  <div class="form-control position-relative flex-grow-1">
+                    <div class="dropdown w-100">
+                      <input type="text" class="form-control border-0" 
+                            placeholder="Rechercher une prestation..." 
+                            [(ngModel)]="prestationFilterText" 
+                            [ngModelOptions]="{standalone: true}"
+                            (focus)="prestationDropdown.classList.add('show')"
+                            (input)="prestationDropdown.classList.add('show')">
+                                
+                      <div #prestationDropdown class="dropdown-menu w-100" style="max-height: 250px; overflow-y: auto;">
+                        <div *ngIf="filterPrestations().length === 0" class="dropdown-item text-muted">Aucune prestation trouvée</div>
+                        <button *ngFor="let prestation of filterPrestations()" 
+                                type="button" 
+                                class="dropdown-item" 
+                                (click)="onPrestationSelected(prestation); prestationDropdown.classList.remove('show')">
+                          <strong>{{ prestation.designation }}</strong>
+                          <div *ngIf="prestation.description" class="small text-muted">{{ prestation.description }}</div>
+                          <div class="small text-primary">{{ prestation.prixUnitaire }} CFA</div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-outline-primary" (click)="addEmptyPrestation()">
+                    <i class='bx bx-plus'></i> Ajouter ligne
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive mb-3">
+                <table class="table table-bordered">
+                  <thead class="table-light">
+                    <tr>
+                      <th>#</th>
+                      <th>Désignation</th>
+                      <th>Description</th>
+                      <th>Prix unitaire</th>
+                      <th>Durée/Qté</th>
+                      <th>Total</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="prestations">
+                    <tr *ngFor="let prestation of prestationsArray.controls; let i = index" [formGroupName]="i">
+                      <td>{{i + 1}}</td>
+                      <td>
+                        <input type="text" class="form-control form-control-sm" formControlName="designation">
+                        <div *ngIf="prestationsArray.at(i).get('designation')?.invalid && prestationsArray.at(i).get('designation')?.touched" class="text-danger small">
+                          Requis
+                        </div>
+                      </td>
+                      <td><input type="text" class="form-control form-control-sm" formControlName="description"></td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm" formControlName="prixUnitaire" (input)="updatePrestationTotal(i)">
+                        <div *ngIf="prestationsArray.at(i).get('prixUnitaire')?.invalid && prestationsArray.at(i).get('prixUnitaire')?.touched" class="text-danger small">
+                          Requis et > 0
+                        </div>
+                      </td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm" formControlName="duree" (input)="updatePrestationTotal(i)">
+                        <div *ngIf="prestationsArray.at(i).get('duree')?.invalid && prestationsArray.at(i).get('duree')?.touched" class="text-danger small">
+                          Requis et > 0
+                        </div>
+                      </td>
+                      <td><input type="number" class="form-control form-control-sm" formControlName="prixTotal" readonly></td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-danger" (click)="removePrestation(i)">
+                          <i class='bx bx-trash'></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="prestationsArray.length === 0">
+                      <td colspan="7" class="text-center py-3">
+                        <em>Aucune prestation ajoutée</em>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Totaux -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-control" formControlName="notes" rows="4"></textarea>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="row mb-2">
+                        <label class="col-6">Total HT</label>
+                        <div class="col-6 text-end">{{totalHT}} CFA</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6">
+                          <div class="input-group input-group-sm">
+                            <input type="number" class="form-control" formControlName="tva" (input)="updateTotals()">
+                            <span class="input-group-text">% TVA</span>
+                          </div>
+                        </div>
+                        <div class="col-6 text-end">{{montantTVA}} CFA</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6">
+                          <div class="input-group input-group-sm">
+                            <input type="number" class="form-control" formControlName="remise" (input)="updateTotals()">
+                            <span class="input-group-text">% Remise</span>
+                          </div>
+                        </div>
+                        <div class="col-6 text-end">-{{montantRemise}} CFA</div>
+                      </div>
+                      <hr>
+                      <div class="row fw-bold">
+                        <label class="col-6">Total TTC</label>
+                        <div class="col-6 text-end">{{totalTTC}} CFA</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-end mb-5">
+                <button type="button" class="btn btn-secondary me-2" (click)="previewDevis()">
+                  <i class='bx bx-show'></i> Prévisualiser
+                </button>
+                <button type="button" class="btn btn-danger me-2" (click)="deleteDevis()">
+                  <i class='bx bx-trash'></i> Supprimer
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="devisForm.invalid || isLoading">
+                  <i class='bx bx-save'></i> Enregistrer
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm ms-1"></span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aperçu rapide -->
+      <div class="col-md-12" *ngIf="showPreview">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Aperçu</h5>
+            <button type="button" class="btn-close" (click)="showPreview = false"></button>
+          </div>
+          <div class="card-body preview-pane p-0">
+            <div class="devis-preview" style="padding:2rem;">
+              <!-- En-tête entreprise -->
+              <div class="row mb-5">
+                <div class="col-6">
+                  <img [src]="previewUrl" alt="Logo" class="company-logo" *ngIf="companyProfile?.hasLogo">
+                  <h3 class="mb-1 mt-2">{{ companyProfile?.companyName || 'NOM SOCIÉTÉ' }}</h3>
+                  <p class="mb-0" *ngIf="companyProfile?.description">{{ companyProfile?.description }}</p>
+                </div>
+                <div class="col-6">
+                  <h1 class="devis-title">DEVIS</h1>
+                  <p class="mb-1"><strong>Numéro de devis :</strong> {{ devisForm.get('reference')?.value }}</p>
+                  <p class="mb-1"><strong>Date d'émission :</strong> {{ devisForm.get('dateEmission')?.value | date:'dd/MM/yyyy' }}</p>
+                  <p class="mb-1"><strong>Échéance :</strong> {{ devisForm.get('dateEcheance')?.value | date:'dd/MM/yyyy' }}</p>
+                  <p class="mb-1"><strong>Projet :</strong> {{ devisForm.get('nomProjet')?.value }}</p>
+                  <p class="mb-1"><strong>État :</strong>
+                    <span [ngClass]="{
+                      'badge bg-secondary': devisForm.get('statut')?.value === 'BROUILLON' || devisForm.get('statut')?.value === 'brouillon',
+                      'badge bg-info': devisForm.get('statut')?.value === 'ENVOYE' || devisForm.get('statut')?.value === 'envoye' || devisForm.get('statut')?.value === 'ENVOYÉ' || devisForm.get('statut')?.value === 'envoyé',
+                      'badge bg-success': devisForm.get('statut')?.value === 'ACCEPTE' || devisForm.get('statut')?.value === 'accepte' || devisForm.get('statut')?.value === 'ACCEPTÉ' || devisForm.get('statut')?.value === 'accepté',
+                      'badge bg-danger': devisForm.get('statut')?.value === 'REFUSE' || devisForm.get('statut')?.value === 'refuse' || devisForm.get('statut')?.value === 'REFUSÉ' || devisForm.get('statut')?.value === 'refusé'
+                    }">{{ devisForm.get('statut')?.value | titlecase }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Sections client -->
+              <div class="row client-section">
+                <div class="col-6">
+                  <h5>Destinataire</h5>
+                  <p class="mb-1"><strong>{{ selectedClient?.nom || 'Nom du client' }}</strong></p>
+                  <p class="mb-1" *ngIf="selectedClient?.email"><i class="ti ti-mail me-2"></i>{{ selectedClient?.email }}</p>
+                  <p class="mb-1" *ngIf="selectedClient?.trackingId"><i class="ti ti-user me-2"></i>ID: {{ selectedClient?.trackingId }}</p>
+                </div>
+                <div class="col-6">
+                  <h5>Émis par</h5>
+                  <p class="mb-1"><strong>{{ companyProfile?.companyName || 'NOM SOCIÉTÉ' }}</strong></p>
+                  <p class="mb-1" *ngIf="companyProfile?.email"><i class="ti ti-mail me-2"></i>{{ companyProfile?.email }}</p>
+                  <p class="mb-1" *ngIf="companyProfile?.phoneNumber"><i class="ti ti-phone me-2"></i>{{ companyProfile?.phoneNumber }}</p>
+                  <p class="mb-1" *ngIf="companyProfile?.address"><i class="ti ti-map-pin me-2"></i>{{ companyProfile?.address }}</p>
+                </div>
+              </div>
+
+              <!-- Bloc prestations -->
+              <div *ngIf="prestationsArray.value?.length" class="mb-4 mt-4">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th style="width: 5%">QTÉ</th>
+                      <th style="width: 55%">DÉSIGNATION</th>
+                      <th style="width: 20%" class="text-end">PRIX UNIT.</th>
+                      <th style="width: 20%" class="text-end">MONTANT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let prestation of prestationsArray.value; let i = index" [ngClass]="{'table-row-even': i % 2 === 0, 'table-row-odd': i % 2 !== 0}">
+                      <td>{{ prestation.quantite || prestation.duree || 1 }}</td>
+                      <td>
+                        <strong>{{ prestation.designation || prestation.description }}</strong>
+                        <div *ngIf="prestation.description && prestation.designation">{{ prestation.description }}</div>
+                      </td>
+                      <td class="text-end">{{ prestation.prixUnitaire }} CFA</td>
+                      <td class="text-end">{{ (prestation.prixUnitaire * (prestation.quantite || prestation.duree || 1)) | number:'1.2-2' }} CFA</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div *ngIf="!prestationsArray.value || prestationsArray.value.length === 0" class="text-center my-4">
+                <em>Aucune prestation renseignée</em>
+              </div>
+
+              <!-- Résumé financier -->
+              <div class="row">
+                <div class="col-6">
+                  <h6 class="border-bottom pb-2 mt-2">Résumé financier</h6>
+                  <p class="mb-1">Prix HT :</p>
+                  <p class="mb-1">TVA ({{ devisForm.get('tva')?.value }}%) :</p>
+                  <p class="mb-1" *ngIf="devisForm.get('remise')?.value > 0">Remise :</p>
+                  <p class="fw-bold mb-0">Total TTC :</p>
+                </div>
+                <div class="col-6 text-end">
+                  <h6 class="border-bottom pb-2 mt-2">&nbsp;</h6>
+                  <p class="mb-1">{{ totalHT | number:'1.2-2' }} CFA</p>
+                  <p class="mb-1">{{ montantTVA | number:'1.2-2' }} CFA</p>
+                  <p class="mb-1 text-danger" *ngIf="devisForm.get('remise')?.value > 0">-{{ montantRemise | number:'1.2-2' }} CFA</p>
+                  <p class="fw-bold mb-0">{{ totalTTC | number:'1.2-2' }} CFA</p>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="mt-3" *ngIf="devisForm.get('notes')?.value">
+                <h6 class="border-bottom pb-2">Notes</h6>
+                <p>{{ devisForm.get('notes')?.value }}</p>
+              </div>
+
+              <!-- Mentions légales -->
+              <div class="text-center mt-3">
+                <p class="small mb-0">
+                  IBAN : FR00 0000 0000 0000 | SWIFT/BIC : XXXXXXXX
+                </p>
+                <p class="small mb-0">Merci de votre confiance</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'ajout de client -->
+<div class="modal fade" id="addClientModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter un nouveau client</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="clientForm" (ngSubmit)="onClientSubmit()">
+          <div class="row g-3">
+            <!-- Informations personnelles -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                <input id="nom" type="text" formControlName="nom" class="form-control" placeholder="Nom du client" />
+                <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched" class="text-danger small mt-1">
+                  Le nom est requis
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input id="email" type="email" formControlName="email" class="form-control" placeholder="Email du client" />
+                <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched" class="text-danger small mt-1">
+                  <span *ngIf="clientForm.get('email')?.errors?.['required']">L'email est requis</span>
+                  <span *ngIf="clientForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="telephone" class="form-label">Téléphone <span class="text-danger">*</span></label>
+                <input id="telephone" type="tel" formControlName="telephone" class="form-control" placeholder="Numéro de téléphone" />
+                <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched" class="text-danger small mt-1">
+                  Le numéro de téléphone est requis
+                </div>
+              </div>
+            </div>
+
+            <!-- Informations professionnelles -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="societe" class="form-label">Société <span class="text-danger">*</span></label>
+                <input id="societe" type="text" formControlName="societe" class="form-control" placeholder="Société du client" />
+                <div *ngIf="clientForm.get('societe')?.invalid && clientForm.get('societe')?.touched" class="text-danger small mt-1">
+                  La société est requise
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="numeroTVA" class="form-label">Numéro TVA <span class="text-danger">*</span></label>
+                <input id="numeroTVA" type="text" formControlName="numeroTVA" class="form-control" placeholder="Numéro TVA" />
+                <div *ngIf="clientForm.get('numeroTVA')?.invalid && clientForm.get('numeroTVA')?.touched" class="text-danger small mt-1">
+                  Le numéro TVA est requis
+                </div>
+              </div>
+            </div>
+
+            <!-- Adresse -->
+            <div class="col-12">
+              <div class="mb-3">
+                <label for="adresse" class="form-label">Adresse complète <span class="text-danger">*</span></label>
+                <input id="adresse" type="text" formControlName="adresse" class="form-control" placeholder="Adresse du client" />
+                <div *ngIf="clientForm.get('adresse')?.invalid && clientForm.get('adresse')?.touched" class="text-danger small mt-1">
+                  L'adresse est requise
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
+                    <input id="ville" type="text" formControlName="ville" class="form-control" placeholder="Ville du client" />
+                    <div *ngIf="clientForm.get('ville')?.invalid && clientForm.get('ville')?.touched" class="text-danger small mt-1">
+                      La ville est requise
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="pays" class="form-label">Pays <span class="text-danger">*</span></label>
+                    <input id="pays" type="text" formControlName="pays" class="form-control" placeholder="Pays du client" />
+                    <div *ngIf="clientForm.get('pays')?.invalid && clientForm.get('pays')?.touched" class="text-danger small mt-1">
+                      Le pays est requis
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message d'erreur -->
+          <div *ngIf="clientErrorMessage" class="alert alert-danger mt-3">
+            {{ clientErrorMessage }}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="onClientSubmit()" [disabled]="isClientFormLoading">
+          <span *ngIf="isClientFormLoading" class="spinner-border spinner-border-sm me-1"></span>
+          Ajouter le client
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

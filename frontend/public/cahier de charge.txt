@@ -1,0 +1,49 @@
+1. Contexte
+Dans le cadre du développement de projets informatiques, il est souvent difficile pour les développeurs,
+notamment les débutants, d'établir des devis et des factures de manière précise et uniforme. L'absence de
+référence claire pour estimer la charge de travail et fixer les coûts peut entraîner des pertes financières,
+une mauvaise gestion des attentes des clients, et des malentendus contractuels.
+2. Problématique
+Comment concevoir une application de gestion de facturation qui permet aux développeurs de générer des
+devis et des factures de manière standardisée, avec une estimation claire du coût des prestations et des
+pourcentages de taxes appliqués, tout en facilitant l'édition et l'envoi automatique des documents au
+format PDF aux clients ?
+3. Objectifs
+
+Automatiser la création de devis et de factures avec une structure uniforme.
+
+Permettre l'ajout des prestations avec description, durée estimée, prix unitaire et montant total.
+
+Calculer automatiquement les montants totaux avec prise en compte des remises, taxes, et frais
+supplémentaires.
+
+Générer des documents au format PDF.
+CAHIER DE CHARGE : InvoicePlanner
+
+Permettre l'envoi automatique des factures par email.
+
+Centraliser l'historique des factures.
+
+Fournir une interface utilisateur simple pour les développeurs.
+4. Solution Proposée
+L'application proposée sera une solution web composée de deux parties :
+Backend
+
+Développement avec Spring Boot.
+
+Base de données MySQL pour la gestion des clients, prestations et factures.
+
+API REST pour la communication avec le frontend.
+
+Génération de PDF avec iText ou Apache PDFBox.
+
+Envoi d'email avec JavaMailSender.
+Frontend
+
+Développement avec Angular.
+
+Interface utilisateur avec PrimeNG pour une meilleure expérience utilisateur.
+
+Formulaires dynamiques pour la saisie des devis et factures.
+
+Aperçu avant génération de PDF.

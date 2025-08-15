@@ -1,0 +1,182 @@
+<section class="pc-container">
+  <div class="pc-content">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Créer une nouvelle facture</h5>
+            <button class="btn btn-secondary" (click)="goBack()">
+              <i class='bx bx-arrow-back me-2'></i>Retour
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Loading spinner -->
+            <div *ngIf="isLoading" class="text-center my-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="factureForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+              <div class="row">
+                <!-- Informations générales -->
+                <div class="col-md-6">
+                  <div class="card mb-4">
+                    <div class="card-header">
+                      <h6 class="mb-0">Informations générales</h6>
+                    </div>
+                    <div class="card-body">
+                      <div class="mb-3">
+                        <label class="form-label">Client</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" [value]="selectedClient?.nom || ''" readonly>
+                          <button type="button" class="btn btn-outline-secondary" (click)="openClientModal()">
+                            <i class='bx bx-search-alt'></i> Sélectionner
+                          </button>
+                        </div>
+                        <div *ngIf="!selectedClient && factureForm.get('clientTrackingId')?.touched" class="text-danger">
+                          Le client est requis
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="referenceDevis" class="form-label">Référence du devis (optionnel)</label>
+                        <input type="text" id="referenceDevis" class="form-control" formControlName="referenceDevis">
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="dateEcheance" class="form-label">Date d'échéance</label>
+                        <input type="date" id="dateEcheance" class="form-control" formControlName="dateEcheance">
+                        <div *ngIf="factureForm.get('dateEcheance')?.invalid && factureForm.get('dateEcheance')?.touched" class="text-danger">
+                          La date d'échéance est requise
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Informations financières -->
+                <div class="col-md-6">
+                  <div class="card mb-4">
+                    <div class="card-header">
+                      <h6 class="mb-0">Informations financières</h6>
+                    </div>
+                    <div class="card-body">
+                      <div class="mb-3">
+                        <label for="montantHT" class="form-label">Montant HT</label>
+                        <div class="input-group">
+                          <input type="number" id="montantHT" class="form-control" formControlName="montantHT" (change)="calculateTTC()">
+                          <span class="input-group-text">CFA</span>
+                        </div>
+                        <div *ngIf="factureForm.get('montantHT')?.invalid && factureForm.get('montantHT')?.touched" class="text-danger">
+                          Le montant HT est requis et doit être positif
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="remise" class="form-label">Remise</label>
+                        <div class="input-group">
+                          <input type="number" id="remise" class="form-control" formControlName="remise" (change)="calculateTTC()">
+                          <span class="input-group-text">CFA</span>
+                        </div>
+                        <div *ngIf="factureForm.get('remise')?.invalid && factureForm.get('remise')?.touched" class="text-danger">
+                          La remise doit être positive
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="montantTTC" class="form-label">Montant TTC</label>
+                        <div class="input-group">
+                          <input type="number" id="montantTTC" class="form-control" formControlName="montantTTC" readonly>
+                          <span class="input-group-text">CFA</span>
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="etat" class="form-label">État de la facture</label>
+                        <select id="etat" class="form-select" formControlName="etat">
+                          <option value="EN_ATTENTE">En attente</option>
+                          <option value="PAYEE">Payée</option>
+                          <option value="ANNULEE">Annulée</option>
+                        </select>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="modeReglement" class="form-label">Mode de règlement</label>
+                        <select id="modeReglement" class="form-select" formControlName="modeReglement">
+                          <option value="">Sélectionner un mode de règlement</option>
+                          <option value="ESPECES">Espèces</option>
+                          <option value="VIREMENT">Virement bancaire</option>
+                          <option value="CHEQUE">Chèque</option>
+                          <option value="CARTE">Carte bancaire</option>
+                          <option value="MOBILE">Mobile Money</option>
+                        </select>
+                        <div *ngIf="factureForm.get('modeReglement')?.invalid && factureForm.get('modeReglement')?.touched" class="text-danger">
+                          Le mode de règlement est requis
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Actions -->
+              <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-secondary me-2" (click)="goBack()">Annuler</button>
+                <button type="submit" class="btn btn-primary" [disabled]="factureForm.invalid || isLoading || !selectedClient">
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Créer la facture
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal sélection client -->
+<div class="modal fade" id="clientModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sélectionner un client</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control mb-3" placeholder="Rechercher un client..."
+          [(ngModel)]="searchTermClient" (ngModelChange)="filterClients()">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Société</th>
+                <th>Email</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of filteredClients">
+                <td>{{client.nom}}</td>
+                <td>{{client.societe}}</td>
+                <td>{{client.email}}</td>
+                <td>
+                  <button class="btn btn-sm btn-primary" (click)="selectClient(client)">
+                    Sélectionner
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredClients.length === 0">
+                <td colspan="4" class="text-center">Aucun client trouvé</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

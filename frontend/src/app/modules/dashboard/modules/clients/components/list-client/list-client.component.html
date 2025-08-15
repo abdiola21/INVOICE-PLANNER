@@ -1,0 +1,151 @@
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <ul class="breadcrumb">
+              <li class="breadcrumb-item">
+                <a href="..\dashboard\index.html">Home</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a href="javascript: void(0)">Clients</a>
+              </li>
+              <li aria-current="page" class="breadcrumb-item active">List</li>
+            </ul>
+          </div>
+          <div class="col-md-12">
+            <div class="page-header-title">
+              <h2 class="mb-0">List</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+    <!-- [ Main Content ] start -->
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card bg-primary">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="avtar bg-white bg-opacity-10 text-white" (click)="addClient()" style="cursor: pointer; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                    <i class="ph-duotone ph-user-plus f-24"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h4 class="text-white mb-1">Ajouter un nouveau client</h4>
+                  <p class="text-white mb-0">Cliquez ici pour créer un nouveau client</p>
+                </div>
+              </div>
+              <div class="text-end">
+                <h3 class="text-white mb-0">Total Clients</h3>
+                <h2 class="text-white mb-0 fw-bold">{{ clientsResponse.length }}</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-4">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5 class="mb-0">Tous les clients ({{ clientsResponse.length }})</h5>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <span class="input-group-text bg-light">
+                      <i class="ph-duotone ph-magnifying-glass"></i>
+                    </span>
+                    <input class="form-control" placeholder="Rechercher un client..." type="search" name="search" title="Rechercher dans la liste" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row g-3">
+              <!-- Carte client (répétée pour chaque client) -->
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12" *ngFor="let client of clientsResponse">
+                <div class="card client-card h-100 shadow-sm border-0 hover-shadow" [routerLink]="['/dashboard/clients/details', client.trackingId]" style="cursor: pointer; transition: all 0.3s ease;">
+                  <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                      <div class="avtar avtar-xl bg-light-primary text-primary mx-auto">
+                        <i class="ph-duotone ph-user f-24"></i>
+                      </div>
+                      <h5 class="mt-3 mb-1 text-truncate">{{ client.nom }}</h5>
+                      <p class="text-muted mb-0 text-truncate">{{ client.societe }}</p>
+                    </div>
+                    
+                    <div class="border-top pt-3">
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="ph-duotone ph-envelope text-muted me-2"></i>
+                        <span class="text-truncate">{{ client.email }}</span>
+                      </div>
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="ph-duotone ph-phone text-muted me-2"></i>
+                        <span>{{ client.telephone }}</span>
+                      </div>
+                      <div class="d-flex align-items-center">
+                        <i class="ph-duotone ph-map-pin text-muted me-2"></i>
+                        <span class="text-truncate">{{ client.ville }}, {{ client.pays }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card-footer bg-light p-3">
+                    <div class="d-flex justify-content-around">
+                      <a [routerLink]="['/dashboard/clients/edit', client.trackingId]" class="btn btn-sm btn-outline-primary" (click)="$event.stopPropagation()" title="Modifier">
+                        <i class="bx bx-edit-alt me-1"></i>Modifier
+                      </a>
+                      <a class="btn btn-sm btn-outline-danger" (click)="deleteClient(client.trackingId); $event.stopPropagation()" title="Supprimer">
+                        <i class="bx bx-trash-alt me-1"></i>Supprimer
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Message si aucun client -->
+              <div class="col-12 text-center py-5" *ngIf="clientsResponse.length === 0">
+                <div class="avtar avtar-xl bg-light-secondary text-secondary mx-auto mb-3">
+                  <i class="ph-duotone ph-users-three f-36"></i>
+                </div>
+                <h5>Aucun client trouvé</h5>
+                <p class="text-muted">Commencez par ajouter votre premier client</p>
+                <button class="btn btn-primary mt-2" (click)="addClient()">
+                  <i class="ph-duotone ph-user-plus me-1"></i>Ajouter un client
+                </button>
+              </div>
+            </div>
+            
+            <!-- Pagination simple -->
+            <div class="d-flex justify-content-center mt-4" *ngIf="clientsResponse.length > 0">
+              <nav aria-label="Page navigation">
+                <ul class="pagination">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                  <li class="page-item active"><a class="page-link" href="javascript:void(0)">1</a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ Main Content ] end -->
+  </div>
+</div>
+

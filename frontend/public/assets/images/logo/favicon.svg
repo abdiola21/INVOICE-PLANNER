@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond -->
+  <rect x="0" y="0" width="32" height="32" rx="6" fill="#4d7c8a" />
+  
+  <!-- Document principal -->
+  <rect x="6" y="4" width="16" height="20" rx="2" fill="#ffffff" stroke="#202020" stroke-width="0.5" />
+  
+  <!-- Lignes du document -->
+  <line x1="9" y1="8" x2="19" y2="8" stroke="#cecece" stroke-width="0.5" />
+  <line x1="9" y1="12" x2="19" y2="12" stroke="#cecece" stroke-width="0.5" />
+  <line x1="9" y1="16" x2="19" y2="16" stroke="#cecece" stroke-width="0.5" />
+  
+  <!-- Tampon -->
+  <circle cx="17" cy="12" r="4" fill="#4d7c8a" opacity="0.6" />
+  
+  <!-- Stylo -->
+  <path d="M22,6 L18,14 L20,16 L24,8 Z" fill="#4d7c8a" />
+  <rect x="18" y="14" width="2" height="4" rx="1" fill="#4d7c8a" transform="rotate(-10, 19, 16)" />
+</svg> 

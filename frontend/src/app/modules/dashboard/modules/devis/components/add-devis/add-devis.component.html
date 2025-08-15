@@ -1,0 +1,825 @@
+<div class="pc-container">
+  <div class="row ">
+    <div class="row pc-content">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Nouveau devis</h4>
+            <!--bouton retour-->
+            <button type="button" class="btn btn-secondary float-end" routerLink="/dashboard/devis">
+              <i class='bx bx-arrow-back'></i> Retour
+            </button>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="devisForm" (ngSubmit)="onSubmit()">
+              <!-- Informations générales -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Référence</label>
+                  <input type="text" class="form-control" formControlName="reference">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Nom du projet</label>
+                  <input type="text" class="form-control" formControlName="nomProjet">
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" formControlName="description" rows="2"></textarea>
+                </div>
+              </div>
+
+              <!-- Client -->
+              <div class="row mb-3">
+                <div class="col-md-9">
+                  <label class="form-label">Client <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="form-control position-relative flex-grow-1">
+                      <div class="dropdown w-100">
+                        <input type="text" class="form-control border-0" 
+                              placeholder="Rechercher un client..." 
+                              [(ngModel)]="clientFilterText" 
+                              [ngModelOptions]="{standalone: true}"
+                              (focus)="clientDropdown.classList.add('show')"
+                              (input)="clientDropdown.classList.add('show')">
+                                
+                        <div #clientDropdown class="dropdown-menu w-100" style="max-height: 250px; overflow-y: auto;">
+                          <div *ngIf="filterClients().length === 0" class="dropdown-item text-muted">Aucun client trouvé</div>
+                          <button *ngFor="let client of filterClients()" 
+                                  type="button" 
+                                  class="dropdown-item" 
+                                  (click)="onClientSelected(client); clientDropdown.classList.remove('show')">
+                            <strong>{{ client.nom }}</strong>
+                            <div *ngIf="client.societe" class="small text-muted">{{ client.societe }}</div>
+                            <div *ngIf="client.email" class="small text-muted">{{ client.email }}</div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" (click)="openAddClientModal()">
+                      <i class='bx bx-plus'></i> Nouveau
+                    </button>
+                  </div>
+                  <div *ngIf="selectedClient" class="mt-2 p-2 border rounded">
+                    <div class="d-flex justify-content-between">
+                      <strong>{{ selectedClient.nom }}</strong>
+                      <button type="button" class="btn-close" (click)="selectedClient = null; devisForm.get('client')?.setValue(null)"></button>
+                    </div>
+                    <div *ngIf="selectedClient.societe" class="small">{{ selectedClient.societe }}</div>
+                    <div *ngIf="selectedClient.email" class="small">{{ selectedClient.email }}</div>
+                  </div>
+                  <div *ngIf="devisForm.get('client')?.invalid && devisForm.get('client')?.touched" class="text-danger mt-1">
+                    Veuillez sélectionner un client
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Statut</label>
+                  <select class="form-select" formControlName="statut">
+                    <option value="BROUILLON">Brouillon</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Dates -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="dateEmission" class="form-label">Date d'émission</label>
+                  <input id="dateEmission" type="date" class="form-control" formControlName="dateEmission" [min]="today"
+                    [value]="today">
+                </div>
+                <div class="col-md-6">
+                  <label for="dateEcheance" class="form-label">Date d'échéance</label>
+                  <input id="dateEcheance" type="date" class="form-control" formControlName="dateEcheance"
+                    [min]="todayPlusOneMonth" [value]="todayPlusOneMonth">
+                </div>
+              </div>
+
+              <!-- Prestations -->
+              <h5 class="mt-4">Prestations</h5>
+              <div class="mb-3">
+                <div class="input-group">
+                  <div class="form-control position-relative flex-grow-1">
+                    <div class="dropdown w-100">
+                      <input type="text" class="form-control border-0" 
+                            placeholder="Rechercher une prestation..." 
+                            [(ngModel)]="prestationFilterText" 
+                            [ngModelOptions]="{standalone: true}"
+                            (focus)="prestationDropdown.classList.add('show')"
+                            (input)="prestationDropdown.classList.add('show')">
+                                
+                      <div #prestationDropdown class="dropdown-menu w-100" style="max-height: 250px; overflow-y: auto;">
+                        <div *ngIf="filterPrestations().length === 0" class="dropdown-item text-muted">Aucune prestation trouvée</div>
+                        <button *ngFor="let prestation of filterPrestations()" 
+                                type="button" 
+                                class="dropdown-item" 
+                                (click)="onPrestationSelected(prestation); prestationDropdown.classList.remove('show')">
+                          <strong>{{ prestation.designation }}</strong>
+                          <div *ngIf="prestation.description" class="small text-muted">{{ prestation.description }}</div>
+                          <div class="small text-primary">{{ prestation.prixUnitaire }} CFA</div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-outline-primary" (click)="addEmptyPrestation()">
+                    <i class='bx bx-plus'></i> Ajouter ligne
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive mb-3">
+                <table class="table table-bordered">
+                  <thead class="table-light">
+                    <tr>
+                      <th>#</th>
+                      <th>Désignation</th>
+                      <th>Description</th>
+                      <th>Prix unitaire</th>
+                      <th>Durée/Qté</th>
+                      <th>Total</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="prestations">
+                    <tr *ngFor="let prestation of prestationsArray.controls; let i = index" [formGroupName]="i">
+                      <td>{{i + 1}}</td>
+                      <td>
+                        <input type="text" class="form-control form-control-sm" formControlName="designation">
+                        <div *ngIf="prestationsArray.at(i).get('designation')?.invalid && prestationsArray.at(i).get('designation')?.touched" class="text-danger small">
+                          Requis
+                        </div>
+                      </td>
+                      <td><input type="text" class="form-control form-control-sm" formControlName="description"></td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm" formControlName="prixUnitaire" (input)="updatePrestationTotal(i)">
+                        <div *ngIf="prestationsArray.at(i).get('prixUnitaire')?.invalid && prestationsArray.at(i).get('prixUnitaire')?.touched" class="text-danger small">
+                          Requis et > 0
+                        </div>
+                      </td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm" formControlName="duree" (input)="updatePrestationTotal(i)">
+                        <div *ngIf="prestationsArray.at(i).get('duree')?.invalid && prestationsArray.at(i).get('duree')?.touched" class="text-danger small">
+                          Requis et > 0
+                        </div>
+                      </td>
+                      <td><input type="number" class="form-control form-control-sm" formControlName="prixTotal" readonly></td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-danger" (click)="removePrestation(i)">
+                          <i class='bx bx-trash'></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="prestationsArray.length === 0">
+                      <td colspan="7" class="text-center py-3">
+                        <em>Aucune prestation ajoutée</em>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Totaux -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-control" formControlName="notes" rows="4"></textarea>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="row mb-2">
+                        <label class="col-6">Total HT</label>
+                        <div class="col-6 text-end">{{totalHT}} CFA</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6">
+                          <div class="input-group input-group-sm">
+                            <input type="number" class="form-control" formControlName="tva" (input)="updateTotals()">
+                            <span class="input-group-text">% TVA</span>
+                          </div>
+                        </div>
+                        <div class="col-6 text-end">{{montantTVA}} CFA</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6">
+                          <div class="input-group input-group-sm">
+                            <input type="number" class="form-control" formControlName="remise" (input)="updateTotals()">
+                            <span class="input-group-text">% Remise</span>
+                          </div>
+                        </div>
+                        <div class="col-6 text-end">-{{montantRemise}} CFA</div>
+                      </div>
+                      <hr>
+                      <div class="row fw-bold">
+                        <label class="col-6">Total TTC</label>
+                        <div class="col-6 text-end">{{totalTTC}} CFA</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-end mb-5">
+                <button type="button" class="btn btn-secondary me-2" (click)="previewDevis()">
+                  <i class='bx  bx-show'></i> Prévisualiser
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="devisForm.invalid || loading">
+                  <i class='bx  bx-save'></i> Enregistrer
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm ms-1"></span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aperçu rapide -->
+      <div class="col-md-12" *ngIf="showPreview">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Aperçu</h5>
+            <button type="button" class="btn-close" (click)="showPreview = false"></button>
+          </div>
+          <div class="card-body p-0">
+            <div class="devis-preview-quick">
+              <!-- En-tête avec logo -->
+              <div class="row mb-4">
+                <div class="col-7">
+                  <h3 class="mb-3">{{companyProfile?.companyName || 'Votre Entreprise'}}</h3>
+                  <div class="d-flex mb-2" *ngIf="companyProfile?.address">
+                    <i class="ti ti-map-pin me-2 text-primary"></i>
+                    <p class="mb-0">{{companyProfile?.address}}</p>
+                  </div>
+                  <div class="d-flex mb-2" *ngIf="companyProfile?.postalCode || companyProfile?.city">
+                    <i class="ti ti-building me-2 text-primary"></i>
+                    <p class="mb-0">{{companyProfile?.postalCode}} {{companyProfile?.city}}</p>
+                  </div>
+                </div>
+                <div class="col-5 text-end">
+                  <img [src]="previewUrl" alt="Logo" style="max-height: 80px; max-width: 150px;"
+                    *ngIf="companyProfile?.hasLogo">
+                </div>
+              </div>
+
+              <!-- Devis info -->
+              <div class="text-center mb-4">
+                <h2>Devis {{devisForm.get('reference')?.value}}</h2>
+                <p>Projet: {{devisForm.get('nomProjet')?.value}}</p>
+              </div>
+
+              <!-- Dates et client -->
+              <div class="row mb-4">
+                <div class="col-6">
+                  <div class="border p-3 bg-light">
+                    <h5 class="mb-2">Client</h5>
+                    <p class="mb-1 fw-bold">{{selectedClient?.nom}}</p>
+                    <p class="mb-1" *ngIf="selectedClient?.societe">{{selectedClient?.societe}}</p>
+                    <p class="mb-1" *ngIf="selectedClient?.email">{{selectedClient?.email}}</p>
+                    <p class="mb-0" *ngIf="selectedClient?.telephone">{{selectedClient?.telephone}}</p>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="border p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Date d'émission:</span>
+                      <span>{{devisForm.get('dateEmission')?.value | date:'dd/MM/yyyy'}}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Date d'échéance:</span>
+                      <span>{{devisForm.get('dateEcheance')?.value | date:'dd/MM/yyyy'}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Détail prestations -->
+              <div class="table-responsive mb-3">
+                <table class="table table-sm table-striped border">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Désignation</th>
+                      <th class="text-end">PU</th>
+                      <th class="text-end">Qté</th>
+                      <th class="text-end">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let prestation of prestationsArray.value">
+                      <td>
+                        {{prestation.designation}}
+                        <div class="text-muted small" *ngIf="prestation.description">{{prestation.description}}</div>
+                      </td>
+                      <td class="text-end">{{prestation.prixUnitaire}} CFA</td>
+                      <td class="text-end">{{prestation.duree}}</td>
+                      <td class="text-end">{{prestation.prixTotal}} CFA</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Totaux -->
+              <div class="row justify-content-end mb-4">
+                <div class="col-5">
+                  <div class="border p-3 bg-light">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Total HT:</span>
+                      <span>{{totalHT}} CFA</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" *ngIf="devisForm.get('tva')?.value">
+                      <span>TVA ({{devisForm.get('tva')?.value}}%):</span>
+                      <span>{{montantTVA}} CFA</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" *ngIf="devisForm.get('remise')?.value">
+                      <span>Remise ({{devisForm.get('remise')?.value}}%):</span>
+                      <span class="text-danger">-{{montantRemise}} CFA</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                      <span>Total TTC:</span>
+                      <span>{{totalTTC}} CFA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div *ngIf="devisForm.get('notes')?.value" class="border p-3 mb-3">
+                <h6>Notes</h6>
+                <p class="mb-0">{{devisForm.get('notes')?.value}}</p>
+              </div>
+
+              <div class="text-center mt-4">
+                <button type="button" class="btn btn-primary" (click)="previewDevis()">
+                  <i class="ti ti-eye me-1"></i> Voir en plein écran
+                </button>
+              </div>
+            </div>
+            <style>
+              .devis-preview-quick {
+                font-family: 'Arial', sans-serif;
+                max-width: 210mm;
+                /* Largeur A4 */
+                margin: 0 auto;
+                background-color: white;
+                padding: 15mm;
+                /* Marges intérieures */
+                font-size: 10pt;
+                /* Taille de police standard pour documents */
+                line-height: 1.4;
+                color: #333;
+              }
+
+              .devis-preview-quick h2 {
+                color: #2c3e50;
+                font-size: 18pt;
+                margin-bottom: 5mm;
+                font-weight: 700;
+              }
+
+              .devis-preview-quick h3 {
+                color: #2c3e50;
+                font-size: 14pt;
+                font-weight: 600;
+                margin-bottom: 3mm;
+              }
+
+              .devis-preview-quick h5 {
+                color: #2c3e50;
+                font-size: 11pt;
+                font-weight: 600;
+                margin-bottom: 2mm;
+              }
+            </style>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'ajout de client -->
+<div class="modal fade" id="addClientModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter un nouveau client</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="clientForm" (ngSubmit)="onClientSubmit()">
+          <div class="row g-3">
+            <!-- Informations personnelles -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                <input id="nom" type="text" formControlName="nom" class="form-control" placeholder="Nom du client" />
+                <div *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched" class="text-danger small mt-1">
+                  Le nom est requis
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input id="email" type="email" formControlName="email" class="form-control" placeholder="Email du client" />
+                <div *ngIf="clientForm.get('email')?.invalid && clientForm.get('email')?.touched" class="text-danger small mt-1">
+                  <span *ngIf="clientForm.get('email')?.errors?.['required']">L'email est requis</span>
+                  <span *ngIf="clientForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="telephone" class="form-label">Téléphone <span class="text-danger">*</span></label>
+                <input id="telephone" type="tel" formControlName="telephone" class="form-control" placeholder="Numéro de téléphone" />
+                <div *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched" class="text-danger small mt-1">
+                  Le numéro de téléphone est requis
+                </div>
+              </div>
+            </div>
+
+            <!-- Informations professionnelles -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="societe" class="form-label">Société <span class="text-danger">*</span></label>
+                <input id="societe" type="text" formControlName="societe" class="form-control" placeholder="Société du client" />
+                <div *ngIf="clientForm.get('societe')?.invalid && clientForm.get('societe')?.touched" class="text-danger small mt-1">
+                  La société est requise
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="numeroTVA" class="form-label">Numéro TVA <span class="text-danger">*</span></label>
+                <input id="numeroTVA" type="text" formControlName="numeroTVA" class="form-control" placeholder="Numéro TVA" />
+                <div *ngIf="clientForm.get('numeroTVA')?.invalid && clientForm.get('numeroTVA')?.touched" class="text-danger small mt-1">
+                  Le numéro TVA est requis
+                </div>
+              </div>
+            </div>
+
+            <!-- Adresse -->
+            <div class="col-12">
+              <div class="mb-3">
+                <label for="adresse" class="form-label">Adresse complète <span class="text-danger">*</span></label>
+                <input id="adresse" type="text" formControlName="adresse" class="form-control" placeholder="Adresse du client" />
+                <div *ngIf="clientForm.get('adresse')?.invalid && clientForm.get('adresse')?.touched" class="text-danger small mt-1">
+                  L'adresse est requise
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
+                    <input id="ville" type="text" formControlName="ville" class="form-control" placeholder="Ville du client" />
+                    <div *ngIf="clientForm.get('ville')?.invalid && clientForm.get('ville')?.touched" class="text-danger small mt-1">
+                      La ville est requise
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="pays" class="form-label">Pays <span class="text-danger">*</span></label>
+                    <input id="pays" type="text" formControlName="pays" class="form-control" placeholder="Pays du client" />
+                    <div *ngIf="clientForm.get('pays')?.invalid && clientForm.get('pays')?.touched" class="text-danger small mt-1">
+                      Le pays est requis
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message d'erreur -->
+          <div *ngIf="clientErrorMessage" class="alert alert-danger mt-3">
+            {{ clientErrorMessage }}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="onClientSubmit()" [disabled]="isClientFormLoading">
+          <span *ngIf="isClientFormLoading" class="spinner-border spinner-border-sm me-1"></span>
+          Ajouter le client
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal prévisualisation complète -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Prévisualisation du devis</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="devis-preview" id="devis-preview-pdf">
+          <!-- Contenu de la prévisualisation (similaire à l'aperçu rapide mais en pleine page) -->
+          <!-- En-tête avec logo -->
+          <div class="row mb-5">
+            <div class="col-7">
+              <h3 class="mb-4">{{companyProfile?.companyName || 'Votre Entreprise'}}</h3>
+              <div class="d-flex mb-2" *ngIf="companyProfile?.address">
+                <i class="ti ti-map-pin me-2 text-primary"></i>
+                <p class="mb-0">{{companyProfile?.address}}</p>
+              </div>
+              <div class="d-flex mb-2" *ngIf="companyProfile?.postalCode || companyProfile?.city">
+                <i class="ti ti-building me-2 text-primary"></i>
+                <p class="mb-0">{{companyProfile?.postalCode}} {{companyProfile?.city}}</p>
+              </div>
+              <div class="d-flex mb-2" *ngIf="companyProfile?.email">
+                <i class="ti ti-mail me-2 text-primary"></i>
+                <p class="mb-0">{{companyProfile?.email}}</p>
+              </div>
+              <div class="d-flex mb-2" *ngIf="companyProfile?.phoneNumber">
+                <i class="ti ti-phone me-2 text-primary"></i>
+                <p class="mb-0">{{companyProfile?.phoneNumber}}</p>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <img [src]="previewUrl" alt="Logo" style="max-height: 100px; max-width: 200px;"
+                *ngIf="companyProfile?.hasLogo" class="mb-3">
+            </div>
+          </div>
+
+          <div class="row mb-5">
+            <div class="col-6">
+              <div class="client-box p-4 border">
+                <h5 class="d-flex align-items-center mb-3">
+                  <i class="ti ti-user me-2 text-primary"></i>Client
+                </h5>
+                <p class="mb-2 fw-bold fs-5">{{selectedClient?.nom}}</p>
+                <div class="d-flex mb-2" *ngIf="selectedClient?.societe">
+                  <i class="ti ti-building-store me-2 text-primary"></i>
+                  <p class="mb-0">{{selectedClient?.societe}}</p>
+                </div>
+                <div class="d-flex mb-2" *ngIf="selectedClient?.email">
+                  <i class="ti ti-mail me-2 text-primary"></i>
+                  <p class="mb-0">{{selectedClient?.email}}</p>
+                </div>
+                <div class="d-flex mb-2" *ngIf="selectedClient?.telephone">
+                  <i class="ti ti-phone me-2 text-primary"></i>
+                  <p class="mb-0">{{selectedClient?.telephone}}</p>
+                </div>
+                <div class="d-flex mb-2" *ngIf="selectedClient?.adresse">
+                  <i class="ti ti-map-pin me-2 text-primary"></i>
+                  <p class="mb-0">{{selectedClient?.adresse}}</p>
+                </div>
+                <div class="d-flex mb-2" *ngIf="selectedClient?.ville || selectedClient?.pays">
+                  <i class="ti ti-map me-2 text-primary"></i>
+                  <p class="mb-0">{{selectedClient?.ville}}{{ selectedClient?.ville && selectedClient?.pays ? ', ' : ''
+                    }}{{selectedClient?.pays}}</p>
+                </div>
+                <div class="d-flex mb-2" *ngIf="selectedClient?.numeroTVA">
+                  <i class="ti ti-receipt-tax me-2 text-primary"></i>
+                  <p class="mb-0">TVA : {{selectedClient?.numeroTVA}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="devis-info p-4 border bg-light">
+                <h1 class="mb-4 text-end">Devis {{devisForm.get('reference')?.value}}</h1>
+                <div class="d-flex justify-content-between mb-3">
+                  <div class="d-flex align-items-center">
+                    <i class="ti ti-file-description me-2 text-primary"></i>
+                    <span>Projet</span>
+                  </div>
+                  <span class="fw-medium">{{devisForm.get('nomProjet')?.value}}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <div class="d-flex align-items-center">
+                    <i class="ti ti-calendar me-2 text-primary"></i>
+                    <span>Date d'émission</span>
+                  </div>
+                  <span class="fw-medium">{{devisForm.get('dateEmission')?.value | date:'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <div class="d-flex align-items-center">
+                    <i class="ti ti-calendar-due me-2 text-primary"></i>
+                    <span>Date d'échéance</span>
+                  </div>
+                  <span class="fw-medium">{{devisForm.get('dateEcheance')?.value | date:'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <div class="d-flex align-items-center">
+                    <i class="ti ti-status-change me-2 text-primary"></i>
+                    <span>Statut</span>
+                  </div>
+                  <span class="badge bg-secondary">
+                    <i class="ti ti-pencil me-1"></i>
+                    Brouillon
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4" *ngIf="devisForm.get('description')?.value">
+            <div class="col-12">
+              <p>{{devisForm.get('description')?.value}}</p>
+            </div>
+          </div>
+
+          <!-- Détail prestations -->
+          <div class="mb-5">
+            <h5 class="d-flex align-items-center mb-3">
+              <i class="ti ti-list-details me-2 text-primary"></i>Détails des prestations
+            </h5>
+            <div class="table-responsive">
+              <table class="table table-striped border">
+                <thead class="table-dark">
+                  <tr>
+                    <th class="py-3" style="width: 5%">#</th>
+                    <th class="py-3" style="width: 25%">Désignation</th>
+                    <th class="py-3" style="width: 35%">Description</th>
+                    <th class="py-3 text-end" style="width: 10%">Prix unitaire</th>
+                    <th class="py-3 text-end" style="width: 10%">Quantité</th>
+                    <th class="py-3 text-end" style="width: 15%">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let prestation of prestationsArray.value; let i = index">
+                    <td class="py-3">{{i + 1}}</td>
+                    <td class="py-3 fw-medium">{{prestation.designation}}</td>
+                    <td class="py-3">{{prestation.description}}</td>
+                    <td class="py-3 text-end">{{prestation.prixUnitaire}} CFA</td>
+                    <td class="py-3 text-end">{{prestation.duree}}</td>
+                    <td class="py-3 text-end fw-medium">{{prestation.prixTotal}} CFA</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Totaux -->
+          <div class="row justify-content-end mb-5">
+            <div class="col-md-5">
+              <div class="border rounded p-0 bg-light">
+                <h5 class="d-flex align-items-center p-3 border-bottom bg-light mb-0">
+                  <i class="ti ti-calculator me-2 text-primary"></i>Récapitulatif
+                </h5>
+                <table class="table table-borderless mb-0">
+                  <tbody>
+                    <tr>
+                      <td class="py-3 ps-3">Total HT</td>
+                      <td class="py-3 pe-3 text-end fw-medium">{{totalHT}} CFA</td>
+                    </tr>
+                    <tr *ngIf="devisForm.get('tva')?.value" class="border-top">
+                      <td class="py-3 ps-3">TVA ({{devisForm.get('tva')?.value}}%)</td>
+                      <td class="py-3 pe-3 text-end fw-medium">{{montantTVA}} CFA</td>
+                    </tr>
+                    <tr *ngIf="devisForm.get('remise')?.value" class="border-top">
+                      <td class="py-3 ps-3">Remise</td>
+                      <td class="py-3 pe-3 text-end fw-medium text-danger">-{{montantRemise}} CFA</td>
+                    </tr>
+                    <tr class="border-top bg-light">
+                      <td class="py-3 ps-3 fw-bold">Total TTC</td>
+                      <td class="py-3 pe-3 text-end fw-bold fs-5">{{totalTTC}} CFA</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes et conditions -->
+          <div class="mb-5" *ngIf="devisForm.get('notes')?.value">
+            <h5 class="d-flex align-items-center mb-3">
+              <i class="ti ti-notes me-2 text-primary"></i>Notes et conditions
+            </h5>
+            <div class="p-4 border rounded bg-light">
+              <p class="mb-0">{{devisForm.get('notes')?.value}}</p>
+            </div>
+          </div>
+
+          <!-- Conditions d'acceptation -->
+          <div class="mb-5">
+            <h5 class="d-flex align-items-center mb-3">
+              <i class="ti ti-info-circle me-2 text-primary"></i>Conditions d'acceptation
+            </h5>
+            <div class="p-4 border rounded bg-light">
+              <ul class="mb-0">
+                <li class="mb-2">Ce devis est valable 30 jours à compter de sa date d'émission.</li>
+                <li class="mb-2">Pour accepter ce devis, veuillez le retourner signé avec la mention "Bon pour accord".
+                </li>
+                <li>Le paiement sera exigible selon les modalités convenues après acceptation.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Signature -->
+          <div class="row mb-4">
+            <div class="col-6">
+              <div class="d-flex align-items-center">
+                <i class="ti ti-calendar me-2 text-primary"></i>
+                <p class="mb-0">Date d'émission : <strong>{{devisForm.get('dateEmission')?.value |
+                    date:'dd/MM/yyyy'}}</strong></p>
+              </div>
+            </div>
+            <div class="col-6 text-end">
+              <p class="mb-2 fw-medium">Signature client (précédée de "Bon pour accord")</p>
+              <div class="border-bottom border-dark" style="width: 150px; margin-left: auto; height: 40px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        /* Styles pour le format A4 */
+        .devis-preview {
+          font-family: 'Arial', sans-serif;
+          width: 210mm;
+          /* Largeur A4 */
+          min-height: 297mm;
+          /* Hauteur A4 */
+          margin: 0 auto;
+          background-color: white;
+          padding: 20mm;
+          /* Marges intérieures */
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          font-size: 11pt;
+          /* Taille de police standard pour documents */
+          line-height: 1.5;
+          color: #333;
+          position: relative;
+        }
+
+        /* Typographie */
+        .devis-preview h1 {
+          color: #2c3e50;
+          font-size: 24pt;
+          margin-bottom: 10mm;
+          font-weight: 700;
+        }
+
+        .devis-preview h3 {
+          color: #2c3e50;
+          font-size: 16pt;
+          font-weight: 600;
+          margin-bottom: 5mm;
+        }
+
+        .devis-preview h5 {
+          color: #2c3e50;
+          font-size: 12pt;
+          font-weight: 600;
+          margin-bottom: 3mm;
+        }
+
+        .devis-preview p {
+          margin-bottom: 2mm;
+        }
+
+        /* Tableaux */
+        .devis-preview table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 5mm;
+        }
+
+        .devis-preview th {
+          font-weight: 600;
+          padding: 2mm;
+        }
+
+        .devis-preview td {
+          padding: 2mm;
+          vertical-align: top;
+        }
+
+        /* Impression */
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+
+          .devis-preview,
+          .devis-preview * {
+            visibility: visible;
+          }
+
+          .devis-preview {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 20mm;
+            box-shadow: none;
+          }
+
+          .modal-footer,
+          .btn-close {
+            display: none;
+          }
+        }
+      </style>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" (click)="exportToPDF()">
+          <i class='bx bx-file-pdf me-2'></i> Exporter en PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

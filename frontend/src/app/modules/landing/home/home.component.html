@@ -1,0 +1,170 @@
+<div class="container-fluid p-0">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger m-3" role="alert">
+        {{ error }}
+        <button class="btn btn-outline-danger btn-sm ms-2" (click)="refreshData()">Réessayer</button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="backdrop-filter: blur(8px); background-color: rgba(255, 255, 255, 0.8);">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img
+                    [src]="appConfig?.branding?.logo?.primary || 'assets/images/logo/invoiceslogan.png'"
+                    [alt]="appConfig?.branding?.logo?.alt || 'InvoicePlanner Logo'"
+                    height="60"
+                />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item" *ngFor="let navItem of navigation">
+                        <a class="nav-link" [href]="navItem.url">{{ navItem.text }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-lg-3" href="/auth">Connexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="min-vh-100 d-flex align-items-center" *ngIf="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">{{ hero.title }}</h1>
+                    <p class="lead mb-5 text-muted">{{ hero.subtitle }}</p>
+                    <div class="d-flex gap-3">
+                        <a [href]="hero.primaryButtonLink" class="btn btn-primary btn-lg">{{ hero.primaryButtonText }}</a>
+                        <a [href]="hero.secondaryButtonLink" class="btn btn-outline-secondary btn-lg">{{ hero.secondaryButtonText }}</a>
+                    </div>
+                    <div class="mt-5 d-flex align-items-center gap-3">
+                        <div class="rating">
+                            <i *ngFor="let star of generateStars(hero.rating)" class="ph-duotone ph-star text-warning"></i>
+                            <i *ngIf="hasRemainingStars(hero.rating)" class="ph-duotone ph-star-half text-warning"></i>
+                        </div>
+                        <p class="mb-0">{{ hero.rating }}/5 {{ hero.reviewText }}</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow-lg">
+                        <img [src]="hero.imageUrl" [alt]="hero.imageAlt" class="card-img-top rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="py-5" id="fonctionnalites" *ngIf="features.length > 0">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">Fonctionnalités innovantes</h2>
+            <div class="row g-4">
+                <div class="col-md-4" *ngFor="let feature of features">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i [class]="feature.icon + ' display-4 mb-3'"></i>
+                            <h3>{{ feature.title }}</h3>
+                            <p>{{ feature.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="py-5 bg-light" id="tarifs" *ngIf="pricing.length > 0">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">Des tarifs adaptés à vos besoins</h2>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4" *ngFor="let plan of pricing">
+                    <div class="card h-100" [class.border-primary]="plan.isPopular">
+                        <div class="card-body">
+                            <span *ngIf="plan.isPopular" class="badge bg-primary position-absolute top-0 end-0 m-3">
+                                {{ plan.popularBadgeText || 'Populaire' }}
+                            </span>
+                            <h3 class="card-title">{{ plan.name }}</h3>
+                            <div class="display-4 mb-4">
+                                <small class="fs-6">{{ plan.currency }}</small>{{ plan.price }}<small class="fs-6">{{ plan.period }}</small>
+                            </div>
+                            <ul class="list-unstyled">
+                                <li class="mb-2" *ngFor="let feature of plan.features">
+                                    <i class="ph-duotone ph-check me-2"></i>{{ feature }}
+                                </li>
+                            </ul>
+                            <a [href]="plan.buttonLink" class="btn" 
+                               [class.btn-primary]="plan.isPopular" 
+                               [class.btn-outline-primary]="!plan.isPopular"
+                               class="w-100 mt-4">
+                                {{ plan.buttonText }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5" *ngIf="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <img [src]="footer.logo.imageUrl" [alt]="footer.logo.imageAlt" class="mb-4" height="70">
+                    <p class="mb-4">{{ footer.logo.description }}</p>
+                    <div class="d-flex gap-3">
+                        <a *ngFor="let social of footer.socialLinks" 
+                           [href]="social.url" 
+                           class="text-light"
+                           (click)="onSocialMediaClick(social.platform, social.url)">
+                            <i [class]="social.icon"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <h5 class="mb-4">Produit</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" *ngFor="let link of footer.productLinks">
+                            <a [href]="link.url" class="text-light text-decoration-none">{{ link.text }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h5 class="mb-4">Ressources</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" *ngFor="let link of footer.resourceLinks">
+                            <a [href]="link.url" class="text-light text-decoration-none">{{ link.text }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="mb-4">{{ footer.newsletter.title }}</h5>
+                    <p class="mb-4">{{ footer.newsletter.description }}</p>
+                    <form (ngSubmit)="onNewsletterSubscribe(newsletterEmail.value)" #newsletterForm="ngForm">
+                        <div class="input-group">
+                            <input type="email" 
+                                   class="form-control" 
+                                   [placeholder]="footer.newsletter.placeholder"
+                                   #newsletterEmail
+                                   required>
+                            <button class="btn btn-primary" type="submit">{{ footer.newsletter.buttonText }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+

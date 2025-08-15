@@ -1,0 +1,274 @@
+<!-- Start of Selection -->
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header mb-4">
+     <div class="page-block">
+       <div class="row align-items-center">
+         <div class="col-md-12">
+           <nav aria-label="breadcrumb">
+             <ol class="breadcrumb m-0">
+               <li class="breadcrumb-item">
+                 <a href="..\dashboard\index.html" class="text-decoration-none">
+                   <i class="ti ti-home me-1"></i>Tableau de Bord
+                 </a>
+               </li>
+               <li class="breadcrumb-item">
+                 <a href="javascript: void(0)" class="text-decoration-none">Paramètres</a>
+               </li>
+               <li aria-current="page" class="breadcrumb-item active">Profil de l'entreprise</li>
+             </ol>
+           </nav>
+         </div>
+         <div class="col-md-12 mt-3">
+           <h2 class="mb-0 fw-bold">Profil de l'entreprise</h2>
+         </div>
+       </div>
+     </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+<div class="min-vh-100 bg-gradient d-flex align-items-center justify-content-center p-4"
+     style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);">
+  <div class="bg-white rounded-4 shadow-lg p-5 w-100" style="max-width: 800px;">
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-primary text-white py-3 rounded-top">
+        <div class="d-flex align-items-center justify-content-between">
+          <h4 class="mb-0 d-flex align-items-center" style="color: #ffffff;">
+            <i class="bx bxs-buildings me-2" style="color:#ffffff"></i>
+            <span>Profil de l'entreprise</span>
+          </h4>
+          <div>
+            <span *ngIf="isProfileComplete" class="badge bg-success px-3 py-2 d-flex align-items-center">
+              <i class="bx bxs-check-circle me-1" style="color:#ffffff"></i>
+              <span>Profil complet</span>
+            </span>
+            <span *ngIf="!isProfileComplete" class="badge bg-warning px-3 py-2 d-flex align-items-center">
+              <i class="bx bxs-error me-1" style="color:#ffffff"></i>
+              <span>Profil incomplet</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+
+        <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+          <i class="bx bxs-exclamation-triangle-fill me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success d-flex align-items-center" role="alert">
+          <i class="bx bxs-check-circle-fill me-2"></i>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading" class="needs-validation">
+          <div class="row g-4">
+            <div class="col-md-8">
+              <!-- Nom de l'entreprise -->
+              <div class="mb-4">
+                <label for="companyName" class="form-label fw-bold">Nom de l'entreprise *</label>
+                <input type="text"
+                       id="companyName"
+                       class="form-control form-control-lg"
+                       formControlName="companyName"
+                       [ngClass]="{'is-invalid': profileForm.get('companyName')?.touched && profileForm.get('companyName')?.invalid}">
+                <div class="invalid-feedback">
+                  Le nom de l'entreprise est requis
+                </div>
+              </div>
+              <!-- Adresse -->
+              <div class="mb-4">
+                <label for="address" class="form-label fw-bold">Adresse *</label>
+                <textarea id="address"
+                          class="form-control"
+                          formControlName="address"
+                          rows="2"
+                          [ngClass]="{'is-invalid': profileForm.get('address')?.touched && profileForm.get('address')?.invalid}"></textarea>
+                <div class="invalid-feedback">
+                  L'adresse est requise
+                </div>
+              </div>
+              <!-- Ville et Code postal -->
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <label for="city" class="form-label fw-bold">Ville *</label>
+                  <input type="text"
+                         id="city"
+                         class="form-control"
+                         formControlName="city"
+                         [ngClass]="{'is-invalid': profileForm.get('city')?.touched && profileForm.get('city')?.invalid}">
+                  <div class="invalid-feedback">
+                    La ville est requise
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="postalCode" class="form-label fw-bold">Code postal *</label>
+                  <input type="text"
+                         id="postalCode"
+                         class="form-control"
+                         formControlName="postalCode"
+                         [ngClass]="{'is-invalid': profileForm.get('postalCode')?.touched && profileForm.get('postalCode')?.invalid}">
+                  <div class="invalid-feedback">
+                    Le code postal est requis
+                  </div>
+                </div>
+              </div>
+              <!-- Pays -->
+              <div class="mb-4">
+                <label for="country" class="form-label fw-bold">Pays *</label>
+                <input type="text"
+                       id="country"
+                       class="form-control"
+                       formControlName="country"
+                       [ngClass]="{'is-invalid': profileForm.get('country')?.touched && profileForm.get('country')?.invalid}">
+                <div class="invalid-feedback">
+                  Le pays est requis
+                </div>
+              </div>
+              <!-- Téléphone et Email -->
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <label for="phoneNumber" class="form-label fw-bold">Numéro de téléphone *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="bx bxs-phone"></i>
+                    </span>
+                    <input type="tel"
+                           id="phoneNumber"
+                           class="form-control"
+                           formControlName="phoneNumber"
+                           [ngClass]="{'is-invalid': profileForm.get('phoneNumber')?.touched && profileForm.get('phoneNumber')?.invalid}">
+                  </div>
+                  <div class="invalid-feedback">
+                    Le numéro de téléphone est requis
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="email" class="form-label fw-bold">Email *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="bx bxs-envelope"></i>
+                    </span>
+                    <input type="email"
+                           id="email"
+                           class="form-control"
+                           formControlName="email"
+                           [ngClass]="{'is-invalid': profileForm.get('email')?.touched && profileForm.get('email')?.invalid}">
+                  </div>
+                  <div class="invalid-feedback">
+                    Veuillez entrer un email valide
+                  </div>
+                </div>
+              </div>
+              <!-- Site web -->
+              <div class="mb-4">
+                <label for="website" class="form-label fw-bold">Site web</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bx bxs-globe"></i>
+                  </span>
+                  <input type="url"
+                         id="website"
+                         class="form-control"
+                         formControlName="website"
+                         placeholder="https://www.example.com">
+                </div>
+              </div>
+              <!-- Identifiants fiscaux et enregistrement -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="taxNumber" class="form-label fw-bold">N° d'identification fiscale</label>
+                    <input type="text"
+                           id="taxNumber"
+                           class="form-control"
+                           formControlName="taxNumber">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="registrationNumber" class="form-label fw-bold">N° d'enregistrement</label>
+                    <input type="text"
+                           id="registrationNumber"
+                           class="form-control"
+                           formControlName="registrationNumber">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Logo de l'entreprise -->
+            <div class="col-md-4">
+              <div class="text-center">
+                <label class="form-label fw-bold">Logo de l'entreprise</label>
+                <div class="logo-container mb-3 position-relative">
+                  <div class="ratio ratio-1x1">
+                    <ng-container *ngIf="profile?.hasLogo; else noLogoWithPreview">
+                      <div class="d-flex align-items-center justify-content-center bg-light rounded-3">
+                        <img [src]="previewUrl" alt="Logo de l'entreprise" class="img-thumbnail object-fit-cover rounded-3">
+                      </div>
+                    </ng-container>
+                    <ng-template #noLogoWithPreview>
+                      <img *ngIf="previewUrl"
+                           [src]="previewUrl"
+                           alt="Logo de l'entreprise"
+                           class="img-thumbnail object-fit-cover rounded-3">
+                      <div *ngIf="!previewUrl"
+                           class="d-flex align-items-center justify-content-center bg-light rounded-3">
+                        <i class="bx bxs-building"></i>
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+                <div class="d-grid">
+                  <label class="btn btn-outline-primary mb-2 d-flex align-items-center justify-content-center"
+                         for="logo-upload">
+                    <i class="bx bxs-upload me-2" style="color:#0d6efd"></i>
+                    <span>
+                      <span *ngIf="!isLoading">
+                        @if(isProfileComplete){
+                          Modifier le logo
+                        }
+                        @else{
+                          Choisir un logo
+                        }
+                      </span>
+                      <span *ngIf="isLoading">Chargement...</span>
+                    </span>
+                  </label>
+                  <input type="file"
+                         id="logo-upload"
+                         class="d-none"
+                         (change)="onFileChange($event)"
+                         accept="image/*">
+                </div>
+                <small class="text-muted d-block">Formats acceptés: .jpg, .png, .gif</small>
+              </div>
+            </div>
+          </div>
+          <!-- Bouton d'enregistrement -->
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button type="submit"
+                    class="btn btn-primary btn-lg px-5 d-flex align-items-center"
+                    [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <i class="bx bxs-save me-2" style="color:#ffffff"></i>
+              <span>@if(isProfileComplete){
+                Modifier
+              }
+              @else{
+                Enregistrer
+              }
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- End of Selection -->
+
+
