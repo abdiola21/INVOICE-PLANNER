@@ -1,0 +1,22 @@
+{
+  "root": true,
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "@angular-eslint/recommended",
+        "@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {}
+    },
+    {
+      "files": ["*.html"],
+      "extends": ["@angular-eslint/template/recommended"],
+      "rules": {}
+    }
+  ]
+}
