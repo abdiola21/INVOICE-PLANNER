@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: invoice-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: invoice_planner
+      MYSQL_USER: invoiceuser
+      MYSQL_PASSWORD: invoicepass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - invoice-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: invoice-backend
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/invoice_planner?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: invoiceuser
+      SPRING_DATASOURCE_PASSWORD: invoicepass
+      JWT_SECRET: mySecretKeyChangeInProduction
+    ports:
+      - "8080:8080"
+    networks:
+      - invoice-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: invoice-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    environment:
+      - API_URL=http://backend:8080
+    networks:
+      - invoice-network
+
+volumes:
+  mysql-data:
+
+networks:
+  invoice-network:
+    driver: bridge
